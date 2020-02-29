@@ -1,0 +1,101 @@
+{
+  "NodeConstraints": {
+    "plioin0": {
+      "shim": {
+        "column": 6,
+        "channel": 0
+      }
+    },
+    "plioin1": {
+      "shim": {
+        "column": 7,
+        "channel": 0
+      }
+    },
+    "plioin2": {
+      "shim": {
+        "column": 11,
+        "channel": 0
+      }
+    },
+    "plioin3": {
+      "shim": {
+        "column": 17,
+        "channel": 0
+      }
+    },
+    "plioin4": {
+      "shim": {
+        "column": 23,
+        "channel": 0
+      }
+    },
+    "plioin5": {
+      "shim": {
+        "column": 29,
+        "channel": 0
+      }
+    },
+    "plioin6": {
+      "shim": {
+        "column": 35,
+        "channel": 0
+      }
+    },
+    "plioin7": {
+      "shim": {
+        "column": 41,
+        "channel": 0
+      }
+    },
+    
+    "plioout0": {
+      "shim": {
+        "column": 43,
+        "channel": 0
+      }
+    },
+   "plioout1": {
+      "shim": {
+        "column": 40,
+        "channel": 0
+      }
+    },
+    "plioout2": {
+      "shim": {
+        "column": 34,
+        "channel": 0
+      }
+   },
+   "plioout3": {
+      "shim": {
+        "column": 28,
+        "channel": 0
+      }
+   },
+   "plioout4": {
+      "shim": {
+        "column": 22,
+        "channel": 0
+      }
+    },
+   "plioout5": {
+      "shim": {
+        "column": 16,
+        "channel": 0
+      }
+    },
+   "plioout6": {
+      "shim": {
+        "column": 10,
+        "channel": 0
+      }
+   },
+   "plioout7": {
+      "shim": {
+        "column": 6,
+        "channel": 5
+      }
+   }
+  }
+}

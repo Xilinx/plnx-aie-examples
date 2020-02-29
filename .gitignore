@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Log files and directories
+*.log
+*.xpe
+xnwOut
+
+# ctags file
+tags
