@@ -12,11 +12,10 @@ if [ -z "${DIR}" ]; then
 fi
 
 files=$(find ${DIR} -type f)
-echo "${files}"
-echo "************"
 rfiles=$(echo "${files}" | grep -v -E ".*_[0-9]$")
 rfiles=$(echo "${rfiles}" | grep -v "aie_control.cpp")
-rfiles=$(echo "${rfiles}" | grep -v "aie_cdo_init.bin")
+rfiles=$(echo "${rfiles}" | grep -v -E "bin$")
+echo "${rfiles}"
 echo "${rfiles}" | xargs -I{} rm -r {}
 
 find ${DIR} -type d -empty -delete

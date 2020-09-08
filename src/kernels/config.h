@@ -9,10 +9,10 @@
 #define NUM_HW_COLS		50
 #define NUM_HW_ROWS		8
 
-#define MAT_SIZE		800
+#define MAT_SIZE		1200
 #define NUM_COLS		MAT_SIZE
 #define NUM_ROWS		MAT_SIZE
-#define WIN_SIZE		800
+#define WIN_SIZE		600
 #define WIN_SIZE_BYTES		(WIN_SIZE * sizeof(int))
 
 #define NUM_ROWS_PER_HW_ROW	(NUM_ROWS / NUM_HW_ROWS)

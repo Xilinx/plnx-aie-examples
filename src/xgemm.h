@@ -3,13 +3,13 @@
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
+#include <adf.h>
 #include "kernels.h"
-#include <cardano.h>
 #include "kernels/config.h"
 
-using namespace cardano;
+using namespace adf;
 
-class XGeMM : public cardano::graph {
+class XGeMM : public adf::graph {
 	private:
   		kernel krnl[NUM_HW_ROWS][NUM_HW_COLS];
 	public:

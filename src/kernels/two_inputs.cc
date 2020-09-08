@@ -3,7 +3,7 @@
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
-#include <cardano.h>
+#include <adf.h>
 #include "config.h"
 
 void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,

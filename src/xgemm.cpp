@@ -3,13 +3,15 @@
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
-#include <iostream>
-#include <cardano.h>
+#include <adf.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include "xgemm.h"
 #include "kernels.h"
 #include "kernels/config.h"
+
+#include "experimental/xrt_bo.h"
+#include "experimental/xrt_device.h"
 
 extern "C"
 {
@@ -19,8 +21,10 @@ extern "C"
 	#include <string.h>
 	#include <sys/mman.h>
 	#include <time.h>
-	#include <xaiengine.h>
 }
+
+#define ENABLE			1
+#define DISABLE			0
 
 #define DEBUG			0
 #define ENABLE_PROFILING	0
@@ -52,7 +56,11 @@ extern "C"
 #define S2MM_DATA_SIZE		(NUM_ROWS_PER_HW_ROW * NUM_COLS * sizeof(int))
 #define MAT_A_CHUNK_SIZE	(NUM_ROWS_PER_HW_ROW * NUM_COLS * sizeof(int))
 
-using namespace cardano;
+#define INOUT_BUF_SIZE		(NUM_ELMNTS * sizeof(int) * 6)
+#define DMA_BD_BUF_SIZE		(MM2S_BD_CHAIN_SIZE * NUM_HW_ROWS + S2MM_BD_CHAIN_SIZE * NUM_HW_ROWS)
+#define BUFFER_SIZE		(INOUT_BUF_SIZE + DMA_BD_BUF_SIZE)
+
+using namespace adf;
 
 PLIO plin[NUM_HW_ROWS] = {
 	PLIO("plioin0", plio_64_bits),
@@ -489,19 +497,19 @@ void enable_s2mm_channel(xaxidma_recv_chan_t *dma_recv_chan, uint8_t profile_por
 						__func__, dma->dma_pa, chan_id);
 
 #if ENABLE_PROFILING
-	if (profile_port == XAIE_ENABLE) {
+	if (profile_port == ENABLE) {
 #if CAL_THROUGHPUT
 		/* Start shim performance counters to count clock cycles */
 		start_throughput_profile(dma_recv_chan->profile, S2MM_DATA_SIZE);
-		dma_recv_chan->enable_profile = XAIE_ENABLE;
+		dma_recv_chan->enable_profile = ENABLE;
 #elif CAL_BANDWIDTH
 		/* Start shim performance counters to count clock cycles */
 		start_bandwidth_profile(dma_recv_chan->profile);
-		dma_recv_chan->enable_profile = XAIE_ENABLE;
+		dma_recv_chan->enable_profile = ENABLE;
 #endif
 	} else {
 #if !CAL_GLATENCY
-		dma_recv_chan->enable_profile = XAIE_DISABLE;
+		dma_recv_chan->enable_profile = DISABLE;
 #endif
 	}
 #endif
@@ -547,7 +555,7 @@ void enable_mm2s_channel(xaxidma_send_chan_t *dma_send_chan,
 						__func__, dma->dma_pa, chan_id);
 
 #if ENABLE_PROFILING
-	if (profile_port ==  XAIE_ENABLE) {
+	if (profile_port ==  ENABLE) {
 #if CAL_THROUGHPUT
 		/* Start shim performance counters to count clock cycles */
 		start_throughput_profile(dma_send_chan->profile, MM2S_DATA_SIZE);
@@ -557,14 +565,14 @@ void enable_mm2s_channel(xaxidma_send_chan_t *dma_send_chan,
 #elif CAL_GLATENCY
 		/* Start shim performance counters to count clock cycles */
 		start_latency_profile(dma_send_chan->profile, dma_recv_chan->profile);
-		dma_recv_chan->enable_profile = XAIE_ENABLE;
+		dma_recv_chan->enable_profile = ENABLE;
 #endif
-		dma_send_chan->enable_profile = XAIE_ENABLE;
+		dma_send_chan->enable_profile = ENABLE;
 	} else {
 #if CAL_GLATENCY
-		dma_recv_chan->enable_profile = XAIE_DISABLE;
+		dma_recv_chan->enable_profile = DISABLE;
 #endif
-		dma_send_chan->enable_profile = XAIE_DISABLE;
+		dma_send_chan->enable_profile = DISABLE;
 	}
 #endif
 
@@ -610,9 +618,8 @@ void wait_s2mm_channel(xaxidma_recv_chan_t *dma_recv_chan)
 
 	LPDEBUG("%s: DMA physical address = 0x%lx. S2MM status = 0x%x\n",
 					__func__, dma->dma_pa, s2mm_status);
-
 #if ENABLE_PROFILING
-	if (dma_recv_chan->enable_profile == XAIE_ENABLE) {
+	if (dma_recv_chan->enable_profile == ENABLE) {
 		/* Stop shim performance counters */
 		stop_plio_profile(dma_recv_chan->profile);
 	}
@@ -631,10 +638,9 @@ void wait_mm2s_channel(xaxidma_send_chan_t *dma_send_chan)
 
 	LPDEBUG("%s: DMA physical address = 0x%lx. MM2S status = 0x%x\n",
 					__func__, dma->dma_pa, mm2s_status);
-
 #if ENABLE_PROFILING
 #if !CAL_GLATENCY
-	if (dma_send_chan->enable_profile == XAIE_ENABLE) {
+	if (dma_send_chan->enable_profile == ENABLE) {
 		/* Stop shim performance counters */
 		stop_plio_profile(dma_send_chan->profile);
 	}
@@ -650,8 +656,6 @@ int main(void)
 	int devmem_fd = 0;
 	int ret;
 	char const *dev_file = "/dev/mem";
-
-	XAieGbl_MemInst *mem_inst;
 
 	uint64_t mem_mat_a_va;
 	uint64_t mem_mat_b_va;
@@ -677,14 +681,16 @@ int main(void)
 	printf("Matrix size(int32): %dx%d\n", NUM_ROWS, NUM_COLS);
 
 	/* Allocate input and output data buffers in DDR */
-	mem_inst = XAieGbl_MemInit(0);
-	if (mem_inst == NULL) {
-		LPERROR("Failed to get shared memory.\n");
-		return -EINVAL;
+	auto xrtDevHandle = xrtDeviceOpen(0);
+	xrtBufferHandle xrtBuf = xrtBOAlloc(xrtDevHandle, BUFFER_SIZE, 0, 0);
+	if (!xrtBuf) {
+		LPERROR("failed to allocate xrt buffer of size %ldMB.\n",
+						(BUFFER_SIZE/1024/1024));
+		return -1;
 	}
 
 	/* Get the virtual address of the allocated memory instance */
-	mem_mat_a_va = XAieGbl_MemGetVaddr(mem_inst);
+	mem_mat_a_va = (uint64_t)(uintptr_t)xrtBOMap(xrtBuf);
 	mem_mat_b_va = mem_mat_a_va + NUM_ELMNTS * sizeof(int);
 	mem_mat_bt_va = mem_mat_b_va + NUM_ELMNTS * sizeof(int);
 	mem_mat_c_va = mem_mat_bt_va + NUM_ELMNTS * sizeof(int);
@@ -702,7 +708,7 @@ int main(void)
 							i * S2MM_BD_CHAIN_SIZE;
 
 	/* Get the physical address of the allocated memory instance */
-	mem_mat_a_pa = XAieGbl_MemGetPaddr(mem_inst);
+	mem_mat_a_pa = xrtBOAddress(xrtBuf);
 	mem_mat_b_pa = mem_mat_a_pa + NUM_ELMNTS * sizeof(int);
 	mem_mat_bt_pa = mem_mat_b_pa + NUM_ELMNTS * sizeof(int);
 	mem_mat_c_pa = mem_mat_bt_pa + NUM_ELMNTS * sizeof(int);
@@ -781,17 +787,19 @@ int main(void)
 	}
 
 	/* Reset AIE */
-	printf("Resetting AIE array...\n");
-	XAieLib_NpiAieArrayReset(XAIE_ENABLE);
-	sleep(1);
-	XAieLib_NpiAieArrayReset(XAIE_DISABLE);
-
 	/* record timestamps for performance measurement */
 	clock_gettime(CLOCK_MONOTONIC, &gInit);
 
 	/* Configure AIE */
+#if 0
+	if (xrtDeviceLoadXclbinFile(xrtDevHandle,
+					"aie-matrix-multiplication.xclbin")) {
+		LPERROR("Failed to load xclbin.\n");
+		return -1;
+	}
+#else
 	my_graph.init();
-
+#endif
 	clock_gettime(CLOCK_MONOTONIC, &gRun);
 
 	/* Enable AIE cores */
@@ -816,7 +824,7 @@ int main(void)
 						(uint64_t)mem_mat_c_chunk_pa);
 		LPDEBUG("%s: setup to receive 0x%x\n", __func__, retsize);
 
-		enable_s2mm_channel(&xdma_recv_chans[i], XAIE_ENABLE);
+		enable_s2mm_channel(&xdma_recv_chans[i], 1);
 	}
 
 	/* Chain BDs and enable MM2S channel */
@@ -844,15 +852,15 @@ int main(void)
 #if !CAL_THROUGHPUT
 		if (i >= 0)
 			enable_mm2s_channel(&xdma_send_chans[i],
-					&xdma_recv_chans[i], XAIE_ENABLE);
+						&xdma_recv_chans[i], ENABLE);
 #else
 		if (i > 0)
 			enable_mm2s_channel(&xdma_send_chans[i],
-					&xdma_recv_chans[i], XAIE_ENABLE);
+						&xdma_recv_chans[i], ENABLE);
 #endif
 		else
 			enable_mm2s_channel(&xdma_send_chans[i],
-					&xdma_recv_chans[i], XAIE_DISABLE);
+						&xdma_recv_chans[i], DISABLE);
 	}
 
 	clock_gettime(CLOCK_MONOTONIC, &transCompute);
@@ -905,6 +913,8 @@ int main(void)
 	} else {
 		printf("Success!\n");
 	}
+
+	xrtBOFree(xrtBuf);
 
 #if ENABLE_PROFILING
 	double graphInit, graphRun, ChainingBDs, transferCompute,
