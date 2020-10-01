@@ -4,14 +4,18 @@
 ******************************************************************************/
 
 #include <adf.h>
+#include <fstream>
+#include <iostream>
 #include <sys/time.h>
 #include <unistd.h>
-#include "xgemm.h"
-#include "kernels.h"
-#include "kernels/config.h"
 
+#include "adf/adf_api/XRTConfig.h"
 #include "experimental/xrt_bo.h"
 #include "experimental/xrt_device.h"
+
+#include "kernels.h"
+#include "kernels/config.h"
+#include "xgemm.h"
 
 extern "C"
 {
@@ -648,13 +652,36 @@ void wait_mm2s_channel(xaxidma_send_chan_t *dma_send_chan)
 #endif
 }
 
-int main(void)
+static std::vector<char>
+load_xclbin(xclDeviceHandle device, const std::string& fnm)
+{
+	if (fnm.empty())
+		throw std::runtime_error("No xclbin speified");
+
+	// load bit stream
+	std::ifstream stream(fnm);
+	stream.seekg(0,stream.end);
+	size_t size = stream.tellg();
+	stream.seekg(0,stream.beg);
+
+	std::vector<char> header(size);
+	stream.read(header.data(),size);
+
+	auto top = reinterpret_cast<const axlf*>(header.data());
+	if (xrtDeviceLoadXclbin(device, top))
+		throw std::runtime_error("Bitstream download failed");
+
+	return header;
+}
+
+int main(int argc, char *argv[])
 {
 	struct timespec startAPU, endAPU, gInit, gRun, ChainBDs,
 			reorderResult, transCompute;
 
 	int devmem_fd = 0;
 	int ret;
+	const char *xclbin_file = "aie-matrix-multiplication.xclbin";
 	char const *dev_file = "/dev/mem";
 
 	uint64_t mem_mat_a_va;
@@ -791,19 +818,19 @@ int main(void)
 	clock_gettime(CLOCK_MONOTONIC, &gInit);
 
 	/* Configure AIE */
-#if 0
-	if (xrtDeviceLoadXclbinFile(xrtDevHandle,
-					"aie-matrix-multiplication.xclbin")) {
-		LPERROR("Failed to load xclbin.\n");
-		return -1;
-	}
-#else
-	my_graph.init();
-#endif
+	if (argv[1])
+		xclbin_file = argv[1];
+	auto xclbin = load_xclbin(xrtDevHandle, argv[1]);
 	clock_gettime(CLOCK_MONOTONIC, &gRun);
+	if(!xclbin.size()){
+		LPERROR("Xclbin load %s error\n", xclbin_file);
+		return -1;
+	};
+	//auto top = reinterpret_cast<const axlf*>(xclbin.data());
+	//adf::registerXRT(xrtDevHandle, top->m_header.uuid);
+	//my_graph.run(1);
 
-	/* Enable AIE cores */
-	my_graph.run(1);
+	LPRINTF("Sending matrix to AI engine.\n");
 
 	clock_gettime(CLOCK_MONOTONIC, &ChainBDs);
 
@@ -873,11 +900,11 @@ int main(void)
 		wait_s2mm_channel(&xdma_recv_chans[i]);
 	}
 
-	/* Disable AIE cores */
-	my_graph.end();
+	//my_graph.end();
 
 	clock_gettime(CLOCK_MONOTONIC, &reorderResult);
 
+	LPRINTF("graph ended. Calculate on APU\n");
 	/* Z-ordering */
 	for (int i = 0; i < NUM_COLS / (WIN_SIZE / NUM_ROWS_PER_TILE); i++)
 		for (int j = 0; j < NUM_HW_ROWS; j++)

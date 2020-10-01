@@ -30,12 +30,12 @@ package: libadf.a package.cfg
 	       -o $(APP).xclbin $<
 
 .SILENT: cross-compile
-cross-compile: src/xgemm.cpp Work/ps/c_rts/aie_control.cpp
+cross-compile: src/xgemm.cpp Work/ps/c_rts/aie_control_xrt.cpp
 	$(CXX) $(CFLAGS) $^ -I$(AIETOOLS_ROOT)/include		\
 			    -I$(SYSROOT)/usr/include		\
 			    -I$(SYSROOT)/usr/include/xrt	\
 			    -L$(AIETOOLS_ROOT)/lib/aarch64.o/	\
-			    -ladf_api				\
+			    -ladf_api_xrt				\
 			    -L$(SYSROOT)/usr/lib		\
 			    -lxrt_coreutil -lxrt_core		\
 			    -lxaiengine				\
