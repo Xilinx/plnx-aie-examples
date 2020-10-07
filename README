@@ -454,14 +454,22 @@ To rebuild,
       `project-spec/meta-user-recipes-apps/aie-matrix-multiplication/files`.
    2. Assign values to VITIS_DIR, XILINXD_LICENSE_FILE, SYSROOT, and PFM_XPFM
       in settings.sh script and source settings.sh in a shell session.
+      * SYSROOT is the sysroot generated from PetaLinux
+      * PFM_XPFM is the Vitis platform file.
    3. Run make to compile AIE dataflow graph, create XCL BIN, and cross-compile
-      Linux control application.
+      Linux control application. The `makefile` contains how to use Xilinx tools
+      generate the binaries:
+      * use aiecompiler to generate the AI engine kernel ELFs, and CDOs
+      * use v++ to generate the AI engine configuration package `xclbin` file
+      * compile the Linux application which runs on APU Linux.
 
 Optionally, user can run `clean-aie-work.sh` to clean the Work directory to
 remove unnecessary files, only leave the AIE kernels, AIE CDOs, and the
 aie_control.cpp file.
 
-The generated Linux binary will be `aie-matrix-multiplication`.
+The generated Linux binary will be `aie-matrix-multiplication`. The recipe will
+package the generated `aie-matrix-multiplication` and the `xclbin` file to the
+target rootfs.
 
 The user can then rebuild petalinux.
 
