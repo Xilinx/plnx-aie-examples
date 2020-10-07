@@ -120,7 +120,7 @@ To compute matrix multiplication on AIE, matrix A is sliced horizontally and
 distributed equally among all the core utilized through the AXI-Stream network.
 Matrix B is transposed and feed to the first core in the design element by
 element. The first core shares the input matrix B with the next core through the
-AXI-Stream connection. As the output received from the cores is in z-order 
+AXI-Stream connection. As the output received from the cores is in z-order
 fashion, hence a re-ordering of the output matrix is expected.
 
 +----------------+            +---------------+              +---------------+
@@ -432,12 +432,12 @@ devtool:
 ```
   $ petalinux-config
     Yocto Settings --->
-    		Build tool --->
+		Build tool --->
 			(*) devtool
   $ petalinux-build -c aie-matrix-multiplication -x modify
 ```
 
-The xgemm source files can be found in 
+The xgemm source files can be found in
 `components/yocto/workspace/sources/aie-matrix-multiplication/`
 
 As mentioned earlier, the user can change the number of AIE cores utilized for
