@@ -120,7 +120,7 @@ To compute matrix multiplication on AIE, matrix A is sliced horizontally and
 distributed equally among all the core utilized through the AXI-Stream network.
 Matrix B is transposed and feed to the first core in the design element by
 element. The first core shares the input matrix B with the next core through the
-AXI-Stream connection. As the output received from the cores is in z-order 
+AXI-Stream connection. As the output received from the cores is in z-order
 fashion, hence a re-ordering of the output matrix is expected.
 
 +----------------+            +---------------+              +---------------+
@@ -164,76 +164,68 @@ fashion, hence a re-ordering of the output matrix is expected.
 Compilation Flow
 ================
 
-      +----------------+          +------------------+
-      |                |          |                  |
-      |    xgemm.cpp   |          |   <kernels>.cc   |
-      |                |          |                  |
-      +--+---------+---+          +-------+----------+
-         |         |                      |
-         |         |                      |
-         |         v                      v
-         |     +---+----------------------+-----+
-         |     |                                |
-         |     |             Vitis              |
-         |     |                                |
-         |     +---------+-----------------+----+
-         |               |                 |
-         |               v                 v
-         |     +---------+---------+    +--+-----------------------+
-         |     |                   |    |                          |
-         |     |  aie_control.cpp  |    |         libadf.a         |
-         |     |                   |    | elfs, cdos and meta data |
-         |     +---+---------------+    |                          |
-         |         |                    +---------+----------------+
-         |         |                              |
-         v         v                              |
-+--------+---------+---+                          |
-|                      |                          |
-|  GCC Cross-Compiler  |                          |
-|                      |                          |
-+----------+-----------+                          |
-           |                                      |
-           |                                      v
-           |                         +------------+-----------+
-           |                         |                        |
-           |                         |           V++          |
-           |                         |                        |
-           |                         +------------------------+
-           |                                       |
-           v                                       v
-+----------+--------------------+     +------------+-----------------------+
-|                               |     |                                    |
-|   aie-matrix-multiplication   |     |     xclbin containing AIE CDOs     |
-|      (Application Binary)     |     |             and ELFs               |
-|                               |     |                                    |
-+-------------------------------+     +------------------------------------+
+    +-----------------+         +------------------+
+    |                 |         |                  |
+    |    xgemm.cpp    |         |    kernels.cc    |
+    |                 |         |                  |
+    +--+---------+----+         +-------+----------+
+       |         |                      |
+       |         |                      |
+       |         v                      v
+       |     +---+----------------------+-----+
+       |     |                                |
+       |     |             Vitis              |
+       |     |                                |
+       |     +----------+--------+------------+
+       |                |        |
+       |                |        +-----------------+
+       |                |                          |
+       |                v                          v
+       |     +----------+----------+  +------------+-------------+
+       |     |                     |  |         libadf.a         |
+       |     | aie_control_xrt.cpp |  | ELFs, CDOs and metadata  |
+       |     |                     |  |                          |
+       |     +----------+----------+  +------------+-------------+
+       |                |                          |
+       +------+         |                          |
+              |         |                          |
+              v         v                          v
+     +--------+---------+-----+       +------------+------------+
+     |                        |       |                         |
+     |   GCC Cross Compiler   |       |           V++           |
+     |                        |       |                         |
+     +------------+-----------+       +------------+------------+
+                  |                                |
+                  |                                |
+                  |                                |
+                  v                                v
+     +------------+--------------+    +------------+------------------------+
+     |                           |    |                                     |
+     | aie_matrix_multiplication |    |   aie_matrix_multiplicaion.xclbin   |
+     |    (Application Binary)   |    |(xclbin containing AIE CDOs and ELFs)|
+     |                           |    |                                     |
+     +---------------------------+    +-------------------------------------+
 
-There are 2 sets of external interfaces for AI Engine configuration
-- AI Engine configuration
-	Direct call to AI Engine driver APIs
-	CDO parsing APIs
-- ELF loading
-	Direct call to AI Engine driver to load ELF file
-
-The high-level tool, Vitis, can generate outputs in those 2 formats. Also, the
-user can manually implement the application using direct calls and compile the
-ELF using the low-level compiler.
-
-The generated aie_control.cpp is cross-compiled to run on the target. The
-compiled application loads the generated ELF to the corresponding tile through
-AI Engine load ELF API. The AI Engine configuration is done by calling AI
-Engine driver APIs directly or pass CDO object through CDO parser library. The
-CDO parser is an external component, and the AI Engine software uses the CDO
-APIs.
+The high-level tool, Vitis, can generates aie_control_xrt.cpp which is
+cross-compiled to run on the target. The compiled application loads the
+generated AIE ELFs and CDOs (packeged into XCLBIN) to the corresponding tile
+through load XCLBIN API. The AI Engine configuration can also be done by calling
+AI Engine driver APIs directly without loading XCLBIN.
 
 Sample Work Directory Structure
 ===============================
 
 components/yocto/workspace/sources/aie-matrix-multiplication/
 ├── aie-matrix-multiplication - Cross-Compiled application binary
+├── aie-matrix-multiplication.xclbin
 ├── clean-aie-work.sh - removes log files from Work directory
 ├── graph_aie_constraints.aiecst - PL constraint file
+├── libadf.a
+├── license.txt
+├── makefile
+├── package.cfg
 ├── README
+├── settings.sh
 ├── src
 │   ├── kernels
 │   │   ├── config.h - user defined parameters
@@ -241,9 +233,8 @@ components/yocto/workspace/sources/aie-matrix-multiplication/
 │   │   ├── one_output.cc - last AIE kernel that sends data to PL stream
 │   │   └── two_inputs.cc - subsequent kernels that circulated data and output
 │   ├── kernels.h - kernels declaration
-│   ├── Makefile.Linux - makefile to build the Linux graph control application.
 │   ├── xgemm.cpp - main application runs on the APU
-|   |   xgemm_graph.cpp - main application to generate the graph
+│   ├── xgemm_graph.cpp - main application to generate the graph
 │   └── xgemm.h - dataflow graph definition
 └── Work
     ├── aie
@@ -259,13 +250,12 @@ components/yocto/workspace/sources/aie-matrix-multiplication/
     │   ├── 0_3
     │   │   └── Release
     │   │       └── 0_3
-    .   .
-    .   .
-    .   .
-    .   .
-    │   ├── 9_5
+    │   ├── 0_4
     │   │   └── Release
-    │   │       └── 9_5
+    │   │       └── 0_4
+    .   .
+    .   .
+    .   .
     │   ├── 9_6
     │   │   └── Release
     │   │       └── 9_6
@@ -283,13 +273,14 @@ components/yocto/workspace/sources/aie-matrix-multiplication/
         │   ├── aie_cdo_mem_clear.bin
         │   └── aie_cdo_reset.bin
         └── c_rts
-            └── aie_control.cpp
+            ├── aie_control.cpp
+            └── aie_control_xrt.cpp
 
 Run-time Execution
 ==================
 
 At run-time, Linux application binary calls AI Engine userspace driver and
-(tool generated) run time library, libadf_api.a. AIE userspace drivers
+(tool generated) run time library, libadf_api_xrt.a. AIE userspace drivers
 abstract the kernel space driver which handles runtime configurations along
 with ELF loading.
 
@@ -299,21 +290,23 @@ with ELF loading.
                  |         binary           |
                  |                          |
                  +------------+-------------+
+                              ^
                               |
-User Space                    |
-+-----------------------------v-------------------------------+
+User Space                    v
++-------------------------------------------------------------+
                 +-----------------------------+
                 |                             |
                 |                             |
                 |                             |
-                |          libadf_api         |
+                |        libadf_api_xrt       |
                 |                             |
                 |                             |
                 |                             |
-                +-----------------------------+
+                +--------------+--------------+
+                               ^
                                |
-                               |
-                +--------------v--------------+
+                               v
+                +--------------+--------------+
                 |                             |
                 |   AIE User Space Driver     |
                 |                             |
@@ -323,17 +316,21 @@ User Space                    |
                 |    |                 |      |
                 |    +-----------------+      |
                 +-----------------------------+
-User Space                     |
+                               ^
+                               |
+User Space                     v
 +-------------------------------------------------------------+
                                |
-                   +-----------v------------+
+                               v
+                   +-----------+------------+
                    |  AIE partition driver  |
-                   +------------------------+
+                   +-----------+------------+
+                               ^
                                |
-                     +---------v-----------+
-                     |  AIE device driver  |
-                     +---------------------+
-Kernel Space
+                               v
+                    +----------+----------+
+                    |  AIE device driver  |
+Kernel Space        +---------------------+
 
 The userspace talks to AI engine partition to access the partition hardware.
 
@@ -362,37 +359,36 @@ Follow PetaLinux boot process to launch the Linux on the target.
 After you see the Linux login prompt, you can log in with user "root" and
 password "root".
 
-The AIE ELFs are installed in the `/lib/firmware/aie` directory.
-We will need to go to `/lib/firmware/aie` to run the application.
+The AIE XCLBIN is installed in the `/lib/firmware/aie` directory, and executable
+in '/usr/bin' directory.
 
 ```
-root@xilinx-vck190-2020_2:~# cd /lib/firmware/aie
-root@xilinx-vck190-2020_2:/lib/firmware/aie# aie-matrix-multiplication 
-[ 1293.446327] [drm] Pid 843 opened device
+root@xilinx-vck190-2020_2:~# aie-matrix-multiplication
+Initializing ADF API...
 Matrix size(int32): 1200x1200
-[ 1293.450332] [drm] Pid 843 opened device
-PLIO MCDMA> allocated matrix A at 0xffff68f52000 (phy addr: 0x67500000)
-PLIO MCDMA> allocated matrix B at 0xffff694d0400 (phy addr: 0x67a7e400)
-PLIO MCDMA> allocated matrix B transpose at 0xffff69a4e800 (phy addr: 0x67ffc800)
-PLIO MCDMA> allocated matrix C at 0xffff69fccc00 (phy addr: 0x6857ac00)
-PLIO MCDMA> allocated AIE result at 0xffff6a54b000 (phy addr: 0x68af9000)
-PLIO MCDMA> allocated APU result at 0xffff6aac9400 (phy addr: 0x69077400)
-PLIO MCDMA> allocated MM2S BD chain #0 at 0xffff6b047800 (phy addr: 0x695f5800)
-PLIO MCDMA> allocated S2MM BD chain #0 at 0xffff6b58d800 (phy addr: 0x69b3b800)
-PLIO MCDMA> allocated MM2S BD chain #1 at 0xffff6b0f0400 (phy addr: 0x6969e400)
-PLIO MCDMA> allocated S2MM BD chain #1 at 0xffff6b5a0400 (phy addr: 0x69b4e400)
-PLIO MCDMA> allocated MM2S BD chain #2 at 0xffff6b199000 (phy addr: 0x69747000)
-PLIO MCDMA> allocated S2MM BD chain #2 at 0xffff6b5b3000 (phy addr: 0x69b61000)
-PLIO MCDMA> allocated MM2S BD chain #3 at 0xffff6b241c00 (phy addr: 0x697efc00)
-PLIO MCDMA> allocated S2MM BD chain #3 at 0xffff6b5c5c00 (phy addr: 0x69b73c00)
-PLIO MCDMA> allocated MM2S BD chain #4 at 0xffff6b2ea800 (phy addr: 0x69898800)
-PLIO MCDMA> allocated S2MM BD chain #4 at 0xffff6b5d8800 (phy addr: 0x69b86800)
-PLIO MCDMA> allocated MM2S BD chain #5 at 0xffff6b393400 (phy addr: 0x69941400)
-PLIO MCDMA> allocated S2MM BD chain #5 at 0xffff6b5eb400 (phy addr: 0x69b99400)
-PLIO MCDMA> allocated MM2S BD chain #6 at 0xffff6b43c000 (phy addr: 0x699ea000)
-PLIO MCDMA> allocated S2MM BD chain #6 at 0xffff6b5fe000 (phy addr: 0x69bac000)
-PLIO MCDMA> allocated MM2S BD chain #7 at 0xffff6b4e4c00 (phy addr: 0x69a92c00)
-PLIO MCDMA> allocated S2MM BD chain #7 at 0xffff6b610c00 (phy addr: 0x69bbec00)
+[ 2831.185340] [drm] Pid 986 opened device
+PLIO MCDMA> allocated matrix A at 0xffffa7722000 (phy addr: 0x67500000)
+PLIO MCDMA> allocated matrix B at 0xffffa7ca0400 (phy addr: 0x67a7e400)
+PLIO MCDMA> allocated matrix B transpose at 0xffffa821e800 (phy addr: 0x67ffc800)
+PLIO MCDMA> allocated matrix C at 0xffffa879cc00 (phy addr: 0x6857ac00)
+PLIO MCDMA> allocated AIE result at 0xffffa8d1b000 (phy addr: 0x68af9000)
+PLIO MCDMA> allocated APU result at 0xffffa9299400 (phy addr: 0x69077400)
+PLIO MCDMA> allocated MM2S BD chain #0 at 0xffffa9817800 (phy addr: 0x695f5800)
+PLIO MCDMA> allocated S2MM BD chain #0 at 0xffffa9d5d800 (phy addr: 0x69b3b800)
+PLIO MCDMA> allocated MM2S BD chain #1 at 0xffffa98c0400 (phy addr: 0x6969e400)
+PLIO MCDMA> allocated S2MM BD chain #1 at 0xffffa9d70400 (phy addr: 0x69b4e400)
+PLIO MCDMA> allocated MM2S BD chain #2 at 0xffffa9969000 (phy addr: 0x69747000)
+PLIO MCDMA> allocated S2MM BD chain #2 at 0xffffa9d83000 (phy addr: 0x69b61000)
+PLIO MCDMA> allocated MM2S BD chain #3 at 0xffffa9a11c00 (phy addr: 0x697efc00)
+PLIO MCDMA> allocated S2MM BD chain #3 at 0xffffa9d95c00 (phy addr: 0x69b73c00)
+PLIO MCDMA> allocated MM2S BD chain #4 at 0xffffa9aba800 (phy addr: 0x69898800)
+PLIO MCDMA> allocated S2MM BD chain #4 at 0xffffa9da8800 (phy addr: 0x69b86800)
+PLIO MCDMA> allocated MM2S BD chain #5 at 0xffffa9b63400 (phy addr: 0x69941400)
+PLIO MCDMA> allocated S2MM BD chain #5 at 0xffffa9dbb400 (phy addr: 0x69b99400)
+PLIO MCDMA> allocated MM2S BD chain #6 at 0xffffa9c0c000 (phy addr: 0x699ea000)
+PLIO MCDMA> allocated S2MM BD chain #6 at 0xffffa9dce000 (phy addr: 0x69bac000)
+PLIO MCDMA> allocated MM2S BD chain #7 at 0xffffa9cb4c00 (phy addr: 0x69a92c00)
+PLIO MCDMA> allocated S2MM BD chain #7 at 0xffffa9de0c00 (phy addr: 0x69bbec00)
 PLIO MCDMA> init_dmas: 0xa4000000, page size: 0x1000
 PLIO MCDMA> init_dmas: 0xa4010000, page size: 0x1000
 PLIO MCDMA> init_dmas: 0xa4020000, page size: 0x1000
@@ -401,9 +397,18 @@ PLIO MCDMA> init_dmas: 0xa4040000, page size: 0x1000
 PLIO MCDMA> init_dmas: 0xa4050000, page size: 0x1000
 PLIO MCDMA> init_dmas: 0xa4060000, page size: 0x1000
 PLIO MCDMA> init_dmas: 0xa4070000, page size: 0x1000
+[2773308.118750]Loading PDI from DDR
+[2773308.586234]Monolithic/Master Device
+[2773312.205084]4.050287 ms: PDI initialization time
+[2773316.723665]+++++++Loading Image No: 0x0, Name: default_subs, Id: 0x1C000000
+[2773323.664250]-------Loading Prtn No: 0x0
+[2773376.862181] 49.349571 ms for PrtnNum: 0, Size: 18992496 Bytes
+[2773379.938650]Subsystem PDI Load: Done
+[ 2839.828438] [drm] FPGA Manager load DONE
+[ 2839.830909] [drm] Partition 1 already requested
 Success!
-[ 1791.740316] [drm] Pid 843 closed device
-[ 1791.744187] [drm] Pid 843 closed device
+[ 2839.839382] [drm] zocl_xclbin_read_axlf d7f4dd9c-65c1-45f7-bfc7-984668960922 ret: 0
+[ 3327.447633] [drm] Pid 986 closed device
 root@xilinx-vck190-2020_2:~#
 ```
 
@@ -432,12 +437,12 @@ devtool:
 ```
   $ petalinux-config
     Yocto Settings --->
-    		Build tool --->
-			(*) devtool
+	Build tool --->
+	  (*) devtool
   $ petalinux-build -c aie-matrix-multiplication -x modify
 ```
 
-The xgemm source files can be found in 
+The xgemm source files can be found in
 `components/yocto/workspace/sources/aie-matrix-multiplication/`
 
 As mentioned earlier, the user can change the number of AIE cores utilized for
@@ -454,16 +459,22 @@ To rebuild,
       `project-spec/meta-user-recipes-apps/aie-matrix-multiplication/files`.
    2. Assign values to VITIS_DIR, XILINXD_LICENSE_FILE, SYSROOT, and PFM_XPFM
       in settings.sh script and source settings.sh in a shell session.
+	* SYSROOT is the sysroot generated from PetaLinux
+	* PFM_XPFM is the Vitis platform file.
    3. Run make to compile AIE dataflow graph, create XCL BIN, and cross-compile
-      Linux control application.
+      Linux control application. The `makefile` contains how to use Xilinx
+      tools generate the binaries:
+      * use aiecompiler to generate the AI engine kernel ELFs, and CDOs
+      * use v++ to generate the AI engine configuration package `xclbin` file
+      * compile the Linux application which runs on APU Linux.
 
 Optionally, user can run `clean-aie-work.sh` to clean the Work directory to
 remove unnecessary files, only leave the AIE kernels, AIE CDOs, and the
-aie_control.cpp file.
+aie_control_xrt.cpp file.
 
 The generated Linux binary will be `aie-matrix-multiplication`.
 
-The user can then rebuild petalinux.
+The user can then rebuild Petalinux.
 
 NOTE:
  * No hardware change is supported in this version of Vivado for this design.
