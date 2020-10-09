@@ -12,8 +12,8 @@ CXX := aarch64-linux-gnu-g++
 VPP := v++
 
 CFLAGS += --sysroot $(SYSROOT)
-CFLAGS += -DPS_INIT_AIE
-CFLAGS += -DPS_ENABLE_AIE
+CFLAGS += -D__PS_ENABLE_AIE__
+CFLAGS += -DXAIE_DEBUG
 
 .SILENT: all
 all: clean compile package cross-compile
@@ -26,23 +26,23 @@ compile: src/xgemm_graph.cpp
 .SILENT: package
 package: libadf.a package.cfg
 	$(VPP) -s -p -t hw --platform $(PFM_XPFM)		\
-	       --package.out_dir ./ --config package.cfg	\
-	       -o $(APP).xclbin $<
+	       --package.out_dir ./ --package.defer_aie_run	\
+	       --config package.cfg -o $(APP).xclbin $<
 
 .SILENT: cross-compile
-cross-compile: src/xgemm.cpp Work/ps/c_rts/aie_control.cpp
+cross-compile: src/xgemm.cpp Work/ps/c_rts/aie_control_xrt.cpp
 	$(CXX) $(CFLAGS) $^ -I$(AIETOOLS_ROOT)/include		\
 			    -I$(SYSROOT)/usr/include		\
 			    -I$(SYSROOT)/usr/include/xrt	\
 			    -L$(AIETOOLS_ROOT)/lib/aarch64.o/	\
-			    -ladf_api				\
 			    -L$(SYSROOT)/usr/lib		\
+			    -lstdc++ -ladf_api_xrt		\
 			    -lxrt_coreutil -lxrt_core		\
 			    -lxaiengine				\
 			    -o $(APP)
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) -I$(INCLUDEDIR) $< -o $@
+	$(CXX) $(CFLAGS) -I$(INCLUDEDIR) $< -o $@
 
 .PHONY: clean
 clean:
@@ -54,3 +54,4 @@ clean:
 	rm -rf $(APP) BOOT.BIN *.bif
 	rm -rf _x *_summary
 	rm -rf *.xclbin package package.zip
+	rm -rf *.cdo.bin

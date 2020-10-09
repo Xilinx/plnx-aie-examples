@@ -14,6 +14,7 @@ fi
 files=$(find ${DIR} -type f)
 rfiles=$(echo "${files}" | grep -v -E ".*_[0-9]$")
 rfiles=$(echo "${rfiles}" | grep -v "aie_control.cpp")
+rfiles=$(echo "${rfiles}" | grep -v "aie_control_xrt.cpp")
 rfiles=$(echo "${rfiles}" | grep -v -E "bin$")
 echo "${rfiles}"
 echo "${rfiles}" | xargs -I{} rm -r {}

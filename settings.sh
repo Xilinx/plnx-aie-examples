@@ -32,8 +32,7 @@ if [[ -z "$PFM_XPFM" ]]; then
 fi
 
 # Update path with AIETOOLS_ROOT
-export PATH=$AIETOOLS_ROOT/bin:$VITIS_DIR/bin:$PATH
+export PATH=$VITIS_DIR/bin:$PATH
 
 # Source VITIS, and AIETOOLS
-source $AIETOOLS_ROOT/scripts/aietools_env.sh
 source $VITIS_DIR/settings64.sh

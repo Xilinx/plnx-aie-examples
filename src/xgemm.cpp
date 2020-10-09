@@ -4,14 +4,14 @@
 ******************************************************************************/
 
 #include <adf.h>
+#include <fstream>
 #include <sys/time.h>
 #include <unistd.h>
-#include "xgemm.h"
+
+#include "adf/adf_api/XRTConfig.h"
 #include "kernels.h"
 #include "kernels/config.h"
-
-#include "experimental/xrt_bo.h"
-#include "experimental/xrt_device.h"
+#include "xgemm.h"
 
 extern "C"
 {
@@ -648,6 +648,27 @@ void wait_mm2s_channel(xaxidma_send_chan_t *dma_send_chan)
 #endif
 }
 
+static std::vector<char> load_xclbin(xrtDeviceHandle device, const std::string& fnm)
+{
+	if (fnm.empty())
+		throw std::runtime_error("No xclbin speified");
+
+	// load bit stream
+	std::ifstream stream(fnm);
+	stream.seekg(0,stream.end);
+	size_t size = stream.tellg();
+	stream.seekg(0,stream.beg);
+
+	std::vector<char> header(size);
+	stream.read(header.data(),size);
+
+	auto top = reinterpret_cast<const axlf*>(header.data());
+	if (xrtDeviceLoadXclbin(device, top))
+		throw std::runtime_error("Bitstream download failed");
+
+	return header;
+}
+
 int main(void)
 {
 	struct timespec startAPU, endAPU, gInit, gRun, ChainBDs,
@@ -786,20 +807,16 @@ int main(void)
 		return -EINVAL;
 	}
 
-	/* Reset AIE */
 	/* record timestamps for performance measurement */
 	clock_gettime(CLOCK_MONOTONIC, &gInit);
 
 	/* Configure AIE */
-#if 0
-	if (xrtDeviceLoadXclbinFile(xrtDevHandle,
-					"aie-matrix-multiplication.xclbin")) {
-		LPERROR("Failed to load xclbin.\n");
-		return -1;
-	}
-#else
+	auto xclbin = load_xclbin(xrtDevHandle,
+			"/lib/firmware/aie/aie-matrix-multiplication.xclbin");
+	auto top = reinterpret_cast<const axlf*>(xclbin.data());
+	adf::registerXRT(xrtDevHandle, top->m_header.uuid);
+
 	my_graph.init();
-#endif
 	clock_gettime(CLOCK_MONOTONIC, &gRun);
 
 	/* Enable AIE cores */
@@ -915,6 +932,7 @@ int main(void)
 	}
 
 	xrtBOFree(xrtBuf);
+	xrtDeviceClose(xrtDevHandle);
 
 #if ENABLE_PROFILING
 	double graphInit, graphRun, ChainingBDs, transferCompute,

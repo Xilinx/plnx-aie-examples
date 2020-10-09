@@ -29,11 +29,16 @@
 *.exe
 *.out
 *.app
+BOOT.BIN
+aie.merged.cdo.bin
 
 # Log files and directories
 *.log
 *.xpe
+boot_image.bif
 xnwOut
+_x/
+aie-matrix-multiplication.xclbin.package_summary
 
 # ctags file
 tags
