@@ -6,12 +6,10 @@
 #define XAIE_COL_SHIFT           23
 #define XAIE_ROW_SHIFT           18
 #define XAIE_SHIM_ROW            0
-#define XAIE_MEM_TILE_ROW_START  0
-#define XAIE_MEM_TILE_NUM_ROWS   0
+#define XAIE_RESERVED_ROW_START  0
+#define XAIE_RESERVED_NUM_ROWS   0
 #define XAIE_AIE_TILE_ROW_START  1
 #define XAIE_AIE_TILE_NUM_ROWS   8
-#define CTRL_PL_OFFSET           0x20100000000
-#define CTRL_IP_STRIDE           0x20000
 #define FOR_WRITE                0
 #define FOR_READ                 1
 
@@ -21,825 +19,827 @@ extern "C"
 {
   #include <xaiengine.h>
 }
-
-#include "drivers/aiengine/xioutils.h"
 #include "adf/adf_api/AIEControlConfig.h"
 
 XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
 
 
 /************************** Functions/APIs *****************************/
-  void my_graph_load_elf(const std::string& proj_path)
+  void my_graph_load_elf(const std::string& work_path)
   {
-	std::string proj_dir = (proj_path == "" ?  "." : proj_path);
-	XAieLib_print("Loading elfs of graph my_graph...\n");
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 1), (proj_dir + "/Work/aie/0_0/Release/0_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	#ifdef __PS_INIT_AIE__
+
+	std::string work_dir = (work_path.empty() ?  "Work" : work_path);
+	printf("Loading elfs of graph my_graph...\n");
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 1), (work_dir + "/aie/0_0/Release/0_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(0,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 2), (proj_dir + "/Work/aie/0_1/Release/0_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 2), (work_dir + "/aie/0_1/Release/0_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(0,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 3), (proj_dir + "/Work/aie/0_2/Release/0_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 3), (work_dir + "/aie/0_2/Release/0_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(0,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 4), (proj_dir + "/Work/aie/0_3/Release/0_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 4), (work_dir + "/aie/0_3/Release/0_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(0,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 5), (proj_dir + "/Work/aie/0_4/Release/0_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 5), (work_dir + "/aie/0_4/Release/0_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(0,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 6), (proj_dir + "/Work/aie/0_5/Release/0_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 6), (work_dir + "/aie/0_5/Release/0_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(0,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 7), (proj_dir + "/Work/aie/0_6/Release/0_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 7), (work_dir + "/aie/0_6/Release/0_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(0,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 8), (proj_dir + "/Work/aie/0_7/Release/0_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(0, 8), (work_dir + "/aie/0_7/Release/0_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(0,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 1), (proj_dir + "/Work/aie/1_0/Release/1_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 1), (work_dir + "/aie/1_0/Release/1_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(1,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 2), (proj_dir + "/Work/aie/1_1/Release/1_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 2), (work_dir + "/aie/1_1/Release/1_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(1,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 3), (proj_dir + "/Work/aie/1_2/Release/1_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 3), (work_dir + "/aie/1_2/Release/1_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(1,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 4), (proj_dir + "/Work/aie/1_3/Release/1_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 4), (work_dir + "/aie/1_3/Release/1_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(1,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 5), (proj_dir + "/Work/aie/1_4/Release/1_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 5), (work_dir + "/aie/1_4/Release/1_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(1,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 6), (proj_dir + "/Work/aie/1_5/Release/1_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 6), (work_dir + "/aie/1_5/Release/1_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(1,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 7), (proj_dir + "/Work/aie/1_6/Release/1_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 7), (work_dir + "/aie/1_6/Release/1_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(1,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 8), (proj_dir + "/Work/aie/1_7/Release/1_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(1, 8), (work_dir + "/aie/1_7/Release/1_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(1,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 1), (proj_dir + "/Work/aie/2_0/Release/2_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 1), (work_dir + "/aie/2_0/Release/2_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(2,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 2), (proj_dir + "/Work/aie/2_1/Release/2_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 2), (work_dir + "/aie/2_1/Release/2_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(2,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 3), (proj_dir + "/Work/aie/2_2/Release/2_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 3), (work_dir + "/aie/2_2/Release/2_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(2,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 4), (proj_dir + "/Work/aie/2_3/Release/2_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 4), (work_dir + "/aie/2_3/Release/2_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(2,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 5), (proj_dir + "/Work/aie/2_4/Release/2_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 5), (work_dir + "/aie/2_4/Release/2_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(2,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 6), (proj_dir + "/Work/aie/2_5/Release/2_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 6), (work_dir + "/aie/2_5/Release/2_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(2,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 7), (proj_dir + "/Work/aie/2_6/Release/2_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 7), (work_dir + "/aie/2_6/Release/2_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(2,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 8), (proj_dir + "/Work/aie/2_7/Release/2_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(2, 8), (work_dir + "/aie/2_7/Release/2_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(2,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 1), (proj_dir + "/Work/aie/3_0/Release/3_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 1), (work_dir + "/aie/3_0/Release/3_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(3,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 2), (proj_dir + "/Work/aie/3_1/Release/3_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 2), (work_dir + "/aie/3_1/Release/3_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(3,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 3), (proj_dir + "/Work/aie/3_2/Release/3_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 3), (work_dir + "/aie/3_2/Release/3_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(3,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 4), (proj_dir + "/Work/aie/3_3/Release/3_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 4), (work_dir + "/aie/3_3/Release/3_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(3,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 5), (proj_dir + "/Work/aie/3_4/Release/3_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 5), (work_dir + "/aie/3_4/Release/3_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(3,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 6), (proj_dir + "/Work/aie/3_5/Release/3_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 6), (work_dir + "/aie/3_5/Release/3_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(3,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 7), (proj_dir + "/Work/aie/3_6/Release/3_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 7), (work_dir + "/aie/3_6/Release/3_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(3,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 8), (proj_dir + "/Work/aie/3_7/Release/3_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(3, 8), (work_dir + "/aie/3_7/Release/3_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(3,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 1), (proj_dir + "/Work/aie/4_0/Release/4_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 1), (work_dir + "/aie/4_0/Release/4_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(4,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 2), (proj_dir + "/Work/aie/4_1/Release/4_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 2), (work_dir + "/aie/4_1/Release/4_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(4,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 3), (proj_dir + "/Work/aie/4_2/Release/4_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 3), (work_dir + "/aie/4_2/Release/4_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(4,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 4), (proj_dir + "/Work/aie/4_3/Release/4_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 4), (work_dir + "/aie/4_3/Release/4_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(4,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 5), (proj_dir + "/Work/aie/4_4/Release/4_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 5), (work_dir + "/aie/4_4/Release/4_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(4,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 6), (proj_dir + "/Work/aie/4_5/Release/4_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 6), (work_dir + "/aie/4_5/Release/4_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(4,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 7), (proj_dir + "/Work/aie/4_6/Release/4_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 7), (work_dir + "/aie/4_6/Release/4_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(4,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 8), (proj_dir + "/Work/aie/4_7/Release/4_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(4, 8), (work_dir + "/aie/4_7/Release/4_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(4,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 1), (proj_dir + "/Work/aie/5_0/Release/5_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 1), (work_dir + "/aie/5_0/Release/5_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(5,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 2), (proj_dir + "/Work/aie/5_1/Release/5_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 2), (work_dir + "/aie/5_1/Release/5_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(5,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 3), (proj_dir + "/Work/aie/5_2/Release/5_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 3), (work_dir + "/aie/5_2/Release/5_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(5,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 4), (proj_dir + "/Work/aie/5_3/Release/5_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 4), (work_dir + "/aie/5_3/Release/5_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(5,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 5), (proj_dir + "/Work/aie/5_4/Release/5_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 5), (work_dir + "/aie/5_4/Release/5_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(5,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 6), (proj_dir + "/Work/aie/5_5/Release/5_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 6), (work_dir + "/aie/5_5/Release/5_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(5,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 7), (proj_dir + "/Work/aie/5_6/Release/5_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 7), (work_dir + "/aie/5_6/Release/5_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(5,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 8), (proj_dir + "/Work/aie/5_7/Release/5_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(5, 8), (work_dir + "/aie/5_7/Release/5_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(5,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 1), (proj_dir + "/Work/aie/6_0/Release/6_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 1), (work_dir + "/aie/6_0/Release/6_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(6,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 2), (proj_dir + "/Work/aie/6_1/Release/6_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 2), (work_dir + "/aie/6_1/Release/6_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(6,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 3), (proj_dir + "/Work/aie/6_2/Release/6_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 3), (work_dir + "/aie/6_2/Release/6_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(6,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 4), (proj_dir + "/Work/aie/6_3/Release/6_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 4), (work_dir + "/aie/6_3/Release/6_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(6,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 5), (proj_dir + "/Work/aie/6_4/Release/6_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 5), (work_dir + "/aie/6_4/Release/6_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(6,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 6), (proj_dir + "/Work/aie/6_5/Release/6_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 6), (work_dir + "/aie/6_5/Release/6_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(6,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 7), (proj_dir + "/Work/aie/6_6/Release/6_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 7), (work_dir + "/aie/6_6/Release/6_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(6,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 8), (proj_dir + "/Work/aie/6_7/Release/6_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(6, 8), (work_dir + "/aie/6_7/Release/6_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(6,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 1), (proj_dir + "/Work/aie/7_0/Release/7_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 1), (work_dir + "/aie/7_0/Release/7_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(7,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 2), (proj_dir + "/Work/aie/7_1/Release/7_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 2), (work_dir + "/aie/7_1/Release/7_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(7,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 3), (proj_dir + "/Work/aie/7_2/Release/7_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 3), (work_dir + "/aie/7_2/Release/7_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(7,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 4), (proj_dir + "/Work/aie/7_3/Release/7_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 4), (work_dir + "/aie/7_3/Release/7_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(7,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 5), (proj_dir + "/Work/aie/7_4/Release/7_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 5), (work_dir + "/aie/7_4/Release/7_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(7,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 6), (proj_dir + "/Work/aie/7_5/Release/7_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 6), (work_dir + "/aie/7_5/Release/7_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(7,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 7), (proj_dir + "/Work/aie/7_6/Release/7_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 7), (work_dir + "/aie/7_6/Release/7_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(7,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 8), (proj_dir + "/Work/aie/7_7/Release/7_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(7, 8), (work_dir + "/aie/7_7/Release/7_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(7,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 1), (proj_dir + "/Work/aie/8_0/Release/8_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 1), (work_dir + "/aie/8_0/Release/8_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(8,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 2), (proj_dir + "/Work/aie/8_1/Release/8_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 2), (work_dir + "/aie/8_1/Release/8_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(8,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 3), (proj_dir + "/Work/aie/8_2/Release/8_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 3), (work_dir + "/aie/8_2/Release/8_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(8,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 4), (proj_dir + "/Work/aie/8_3/Release/8_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 4), (work_dir + "/aie/8_3/Release/8_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(8,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 5), (proj_dir + "/Work/aie/8_4/Release/8_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 5), (work_dir + "/aie/8_4/Release/8_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(8,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 6), (proj_dir + "/Work/aie/8_5/Release/8_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 6), (work_dir + "/aie/8_5/Release/8_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(8,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 7), (proj_dir + "/Work/aie/8_6/Release/8_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 7), (work_dir + "/aie/8_6/Release/8_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(8,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 8), (proj_dir + "/Work/aie/8_7/Release/8_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(8, 8), (work_dir + "/aie/8_7/Release/8_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(8,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 1), (proj_dir + "/Work/aie/9_0/Release/9_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 1), (work_dir + "/aie/9_0/Release/9_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(9,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 2), (proj_dir + "/Work/aie/9_1/Release/9_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 2), (work_dir + "/aie/9_1/Release/9_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(9,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 3), (proj_dir + "/Work/aie/9_2/Release/9_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 3), (work_dir + "/aie/9_2/Release/9_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(9,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 4), (proj_dir + "/Work/aie/9_3/Release/9_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 4), (work_dir + "/aie/9_3/Release/9_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(9,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 5), (proj_dir + "/Work/aie/9_4/Release/9_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 5), (work_dir + "/aie/9_4/Release/9_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(9,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 6), (proj_dir + "/Work/aie/9_5/Release/9_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 6), (work_dir + "/aie/9_5/Release/9_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(9,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 7), (proj_dir + "/Work/aie/9_6/Release/9_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 7), (work_dir + "/aie/9_6/Release/9_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(9,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 8), (proj_dir + "/Work/aie/9_7/Release/9_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(9, 8), (work_dir + "/aie/9_7/Release/9_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(9,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 1), (proj_dir + "/Work/aie/10_0/Release/10_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 1), (work_dir + "/aie/10_0/Release/10_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(10,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 2), (proj_dir + "/Work/aie/10_1/Release/10_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 2), (work_dir + "/aie/10_1/Release/10_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(10,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 3), (proj_dir + "/Work/aie/10_2/Release/10_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 3), (work_dir + "/aie/10_2/Release/10_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(10,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 4), (proj_dir + "/Work/aie/10_3/Release/10_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 4), (work_dir + "/aie/10_3/Release/10_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(10,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 5), (proj_dir + "/Work/aie/10_4/Release/10_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 5), (work_dir + "/aie/10_4/Release/10_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(10,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 6), (proj_dir + "/Work/aie/10_5/Release/10_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 6), (work_dir + "/aie/10_5/Release/10_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(10,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 7), (proj_dir + "/Work/aie/10_6/Release/10_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 7), (work_dir + "/aie/10_6/Release/10_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(10,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 8), (proj_dir + "/Work/aie/10_7/Release/10_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(10, 8), (work_dir + "/aie/10_7/Release/10_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(10,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 1), (proj_dir + "/Work/aie/11_0/Release/11_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 1), (work_dir + "/aie/11_0/Release/11_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(11,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 2), (proj_dir + "/Work/aie/11_1/Release/11_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 2), (work_dir + "/aie/11_1/Release/11_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(11,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 3), (proj_dir + "/Work/aie/11_2/Release/11_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 3), (work_dir + "/aie/11_2/Release/11_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(11,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 4), (proj_dir + "/Work/aie/11_3/Release/11_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 4), (work_dir + "/aie/11_3/Release/11_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(11,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 5), (proj_dir + "/Work/aie/11_4/Release/11_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 5), (work_dir + "/aie/11_4/Release/11_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(11,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 6), (proj_dir + "/Work/aie/11_5/Release/11_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 6), (work_dir + "/aie/11_5/Release/11_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(11,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 7), (proj_dir + "/Work/aie/11_6/Release/11_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 7), (work_dir + "/aie/11_6/Release/11_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(11,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 8), (proj_dir + "/Work/aie/11_7/Release/11_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(11, 8), (work_dir + "/aie/11_7/Release/11_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(11,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 1), (proj_dir + "/Work/aie/12_0/Release/12_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 1), (work_dir + "/aie/12_0/Release/12_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(12,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 2), (proj_dir + "/Work/aie/12_1/Release/12_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 2), (work_dir + "/aie/12_1/Release/12_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(12,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 3), (proj_dir + "/Work/aie/12_2/Release/12_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 3), (work_dir + "/aie/12_2/Release/12_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(12,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 4), (proj_dir + "/Work/aie/12_3/Release/12_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 4), (work_dir + "/aie/12_3/Release/12_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(12,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 5), (proj_dir + "/Work/aie/12_4/Release/12_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 5), (work_dir + "/aie/12_4/Release/12_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(12,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 6), (proj_dir + "/Work/aie/12_5/Release/12_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 6), (work_dir + "/aie/12_5/Release/12_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(12,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 7), (proj_dir + "/Work/aie/12_6/Release/12_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 7), (work_dir + "/aie/12_6/Release/12_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(12,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 8), (proj_dir + "/Work/aie/12_7/Release/12_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(12, 8), (work_dir + "/aie/12_7/Release/12_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(12,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 1), (proj_dir + "/Work/aie/13_0/Release/13_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 1), (work_dir + "/aie/13_0/Release/13_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(13,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 2), (proj_dir + "/Work/aie/13_1/Release/13_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 2), (work_dir + "/aie/13_1/Release/13_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(13,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 3), (proj_dir + "/Work/aie/13_2/Release/13_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 3), (work_dir + "/aie/13_2/Release/13_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(13,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 4), (proj_dir + "/Work/aie/13_3/Release/13_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 4), (work_dir + "/aie/13_3/Release/13_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(13,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 5), (proj_dir + "/Work/aie/13_4/Release/13_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 5), (work_dir + "/aie/13_4/Release/13_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(13,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 6), (proj_dir + "/Work/aie/13_5/Release/13_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 6), (work_dir + "/aie/13_5/Release/13_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(13,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 7), (proj_dir + "/Work/aie/13_6/Release/13_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 7), (work_dir + "/aie/13_6/Release/13_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(13,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 8), (proj_dir + "/Work/aie/13_7/Release/13_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(13, 8), (work_dir + "/aie/13_7/Release/13_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(13,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 1), (proj_dir + "/Work/aie/14_0/Release/14_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 1), (work_dir + "/aie/14_0/Release/14_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(14,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 2), (proj_dir + "/Work/aie/14_1/Release/14_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 2), (work_dir + "/aie/14_1/Release/14_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(14,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 3), (proj_dir + "/Work/aie/14_2/Release/14_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 3), (work_dir + "/aie/14_2/Release/14_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(14,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 4), (proj_dir + "/Work/aie/14_3/Release/14_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 4), (work_dir + "/aie/14_3/Release/14_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(14,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 5), (proj_dir + "/Work/aie/14_4/Release/14_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 5), (work_dir + "/aie/14_4/Release/14_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(14,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 6), (proj_dir + "/Work/aie/14_5/Release/14_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 6), (work_dir + "/aie/14_5/Release/14_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(14,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 7), (proj_dir + "/Work/aie/14_6/Release/14_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 7), (work_dir + "/aie/14_6/Release/14_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(14,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 8), (proj_dir + "/Work/aie/14_7/Release/14_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(14, 8), (work_dir + "/aie/14_7/Release/14_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(14,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 1), (proj_dir + "/Work/aie/15_0/Release/15_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 1), (work_dir + "/aie/15_0/Release/15_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(15,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 2), (proj_dir + "/Work/aie/15_1/Release/15_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 2), (work_dir + "/aie/15_1/Release/15_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(15,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 3), (proj_dir + "/Work/aie/15_2/Release/15_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 3), (work_dir + "/aie/15_2/Release/15_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(15,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 4), (proj_dir + "/Work/aie/15_3/Release/15_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 4), (work_dir + "/aie/15_3/Release/15_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(15,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 5), (proj_dir + "/Work/aie/15_4/Release/15_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 5), (work_dir + "/aie/15_4/Release/15_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(15,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 6), (proj_dir + "/Work/aie/15_5/Release/15_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 6), (work_dir + "/aie/15_5/Release/15_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(15,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 7), (proj_dir + "/Work/aie/15_6/Release/15_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 7), (work_dir + "/aie/15_6/Release/15_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(15,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 8), (proj_dir + "/Work/aie/15_7/Release/15_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(15, 8), (work_dir + "/aie/15_7/Release/15_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(15,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 1), (proj_dir + "/Work/aie/16_0/Release/16_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 1), (work_dir + "/aie/16_0/Release/16_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(16,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 2), (proj_dir + "/Work/aie/16_1/Release/16_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 2), (work_dir + "/aie/16_1/Release/16_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(16,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 3), (proj_dir + "/Work/aie/16_2/Release/16_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 3), (work_dir + "/aie/16_2/Release/16_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(16,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 4), (proj_dir + "/Work/aie/16_3/Release/16_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 4), (work_dir + "/aie/16_3/Release/16_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(16,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 5), (proj_dir + "/Work/aie/16_4/Release/16_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 5), (work_dir + "/aie/16_4/Release/16_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(16,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 6), (proj_dir + "/Work/aie/16_5/Release/16_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 6), (work_dir + "/aie/16_5/Release/16_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(16,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 7), (proj_dir + "/Work/aie/16_6/Release/16_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 7), (work_dir + "/aie/16_6/Release/16_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(16,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 8), (proj_dir + "/Work/aie/16_7/Release/16_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(16, 8), (work_dir + "/aie/16_7/Release/16_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(16,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 1), (proj_dir + "/Work/aie/17_0/Release/17_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 1), (work_dir + "/aie/17_0/Release/17_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(17,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 2), (proj_dir + "/Work/aie/17_1/Release/17_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 2), (work_dir + "/aie/17_1/Release/17_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(17,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 3), (proj_dir + "/Work/aie/17_2/Release/17_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 3), (work_dir + "/aie/17_2/Release/17_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(17,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 4), (proj_dir + "/Work/aie/17_3/Release/17_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 4), (work_dir + "/aie/17_3/Release/17_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(17,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 5), (proj_dir + "/Work/aie/17_4/Release/17_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 5), (work_dir + "/aie/17_4/Release/17_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(17,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 6), (proj_dir + "/Work/aie/17_5/Release/17_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 6), (work_dir + "/aie/17_5/Release/17_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(17,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 7), (proj_dir + "/Work/aie/17_6/Release/17_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 7), (work_dir + "/aie/17_6/Release/17_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(17,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 8), (proj_dir + "/Work/aie/17_7/Release/17_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(17, 8), (work_dir + "/aie/17_7/Release/17_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(17,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 1), (proj_dir + "/Work/aie/18_0/Release/18_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 1), (work_dir + "/aie/18_0/Release/18_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(18,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 2), (proj_dir + "/Work/aie/18_1/Release/18_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 2), (work_dir + "/aie/18_1/Release/18_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(18,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 3), (proj_dir + "/Work/aie/18_2/Release/18_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 3), (work_dir + "/aie/18_2/Release/18_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(18,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 4), (proj_dir + "/Work/aie/18_3/Release/18_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 4), (work_dir + "/aie/18_3/Release/18_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(18,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 5), (proj_dir + "/Work/aie/18_4/Release/18_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 5), (work_dir + "/aie/18_4/Release/18_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(18,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 6), (proj_dir + "/Work/aie/18_5/Release/18_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 6), (work_dir + "/aie/18_5/Release/18_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(18,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 7), (proj_dir + "/Work/aie/18_6/Release/18_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 7), (work_dir + "/aie/18_6/Release/18_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(18,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 8), (proj_dir + "/Work/aie/18_7/Release/18_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(18, 8), (work_dir + "/aie/18_7/Release/18_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(18,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 1), (proj_dir + "/Work/aie/19_0/Release/19_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 1), (work_dir + "/aie/19_0/Release/19_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(19,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 2), (proj_dir + "/Work/aie/19_1/Release/19_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 2), (work_dir + "/aie/19_1/Release/19_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(19,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 3), (proj_dir + "/Work/aie/19_2/Release/19_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 3), (work_dir + "/aie/19_2/Release/19_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(19,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 4), (proj_dir + "/Work/aie/19_3/Release/19_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 4), (work_dir + "/aie/19_3/Release/19_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(19,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 5), (proj_dir + "/Work/aie/19_4/Release/19_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 5), (work_dir + "/aie/19_4/Release/19_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(19,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 6), (proj_dir + "/Work/aie/19_5/Release/19_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 6), (work_dir + "/aie/19_5/Release/19_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(19,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 7), (proj_dir + "/Work/aie/19_6/Release/19_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 7), (work_dir + "/aie/19_6/Release/19_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(19,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 8), (proj_dir + "/Work/aie/19_7/Release/19_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(19, 8), (work_dir + "/aie/19_7/Release/19_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(19,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 1), (proj_dir + "/Work/aie/20_0/Release/20_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 1), (work_dir + "/aie/20_0/Release/20_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(20,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 2), (proj_dir + "/Work/aie/20_1/Release/20_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 2), (work_dir + "/aie/20_1/Release/20_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(20,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 3), (proj_dir + "/Work/aie/20_2/Release/20_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 3), (work_dir + "/aie/20_2/Release/20_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(20,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 4), (proj_dir + "/Work/aie/20_3/Release/20_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 4), (work_dir + "/aie/20_3/Release/20_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(20,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 5), (proj_dir + "/Work/aie/20_4/Release/20_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 5), (work_dir + "/aie/20_4/Release/20_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(20,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 6), (proj_dir + "/Work/aie/20_5/Release/20_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 6), (work_dir + "/aie/20_5/Release/20_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(20,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 7), (proj_dir + "/Work/aie/20_6/Release/20_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 7), (work_dir + "/aie/20_6/Release/20_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(20,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 8), (proj_dir + "/Work/aie/20_7/Release/20_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(20, 8), (work_dir + "/aie/20_7/Release/20_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(20,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 1), (proj_dir + "/Work/aie/21_0/Release/21_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 1), (work_dir + "/aie/21_0/Release/21_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(21,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 2), (proj_dir + "/Work/aie/21_1/Release/21_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 2), (work_dir + "/aie/21_1/Release/21_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(21,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 3), (proj_dir + "/Work/aie/21_2/Release/21_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 3), (work_dir + "/aie/21_2/Release/21_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(21,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 4), (proj_dir + "/Work/aie/21_3/Release/21_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 4), (work_dir + "/aie/21_3/Release/21_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(21,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 5), (proj_dir + "/Work/aie/21_4/Release/21_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 5), (work_dir + "/aie/21_4/Release/21_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(21,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 6), (proj_dir + "/Work/aie/21_5/Release/21_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 6), (work_dir + "/aie/21_5/Release/21_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(21,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 7), (proj_dir + "/Work/aie/21_6/Release/21_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 7), (work_dir + "/aie/21_6/Release/21_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(21,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 8), (proj_dir + "/Work/aie/21_7/Release/21_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(21, 8), (work_dir + "/aie/21_7/Release/21_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(21,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 1), (proj_dir + "/Work/aie/22_0/Release/22_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 1), (work_dir + "/aie/22_0/Release/22_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(22,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 2), (proj_dir + "/Work/aie/22_1/Release/22_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 2), (work_dir + "/aie/22_1/Release/22_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(22,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 3), (proj_dir + "/Work/aie/22_2/Release/22_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 3), (work_dir + "/aie/22_2/Release/22_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(22,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 4), (proj_dir + "/Work/aie/22_3/Release/22_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 4), (work_dir + "/aie/22_3/Release/22_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(22,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 5), (proj_dir + "/Work/aie/22_4/Release/22_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 5), (work_dir + "/aie/22_4/Release/22_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(22,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 6), (proj_dir + "/Work/aie/22_5/Release/22_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 6), (work_dir + "/aie/22_5/Release/22_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(22,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 7), (proj_dir + "/Work/aie/22_6/Release/22_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 7), (work_dir + "/aie/22_6/Release/22_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(22,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 8), (proj_dir + "/Work/aie/22_7/Release/22_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(22, 8), (work_dir + "/aie/22_7/Release/22_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(22,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 1), (proj_dir + "/Work/aie/23_0/Release/23_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 1), (work_dir + "/aie/23_0/Release/23_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(23,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 2), (proj_dir + "/Work/aie/23_1/Release/23_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 2), (work_dir + "/aie/23_1/Release/23_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(23,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 3), (proj_dir + "/Work/aie/23_2/Release/23_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 3), (work_dir + "/aie/23_2/Release/23_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(23,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 4), (proj_dir + "/Work/aie/23_3/Release/23_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 4), (work_dir + "/aie/23_3/Release/23_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(23,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 5), (proj_dir + "/Work/aie/23_4/Release/23_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 5), (work_dir + "/aie/23_4/Release/23_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(23,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 6), (proj_dir + "/Work/aie/23_5/Release/23_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 6), (work_dir + "/aie/23_5/Release/23_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(23,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 7), (proj_dir + "/Work/aie/23_6/Release/23_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 7), (work_dir + "/aie/23_6/Release/23_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(23,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 8), (proj_dir + "/Work/aie/23_7/Release/23_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(23, 8), (work_dir + "/aie/23_7/Release/23_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(23,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 1), (proj_dir + "/Work/aie/24_0/Release/24_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 1), (work_dir + "/aie/24_0/Release/24_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(24,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 2), (proj_dir + "/Work/aie/24_1/Release/24_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 2), (work_dir + "/aie/24_1/Release/24_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(24,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 3), (proj_dir + "/Work/aie/24_2/Release/24_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 3), (work_dir + "/aie/24_2/Release/24_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(24,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 4), (proj_dir + "/Work/aie/24_3/Release/24_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 4), (work_dir + "/aie/24_3/Release/24_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(24,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 5), (proj_dir + "/Work/aie/24_4/Release/24_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 5), (work_dir + "/aie/24_4/Release/24_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(24,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 6), (proj_dir + "/Work/aie/24_5/Release/24_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 6), (work_dir + "/aie/24_5/Release/24_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(24,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 7), (proj_dir + "/Work/aie/24_6/Release/24_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 7), (work_dir + "/aie/24_6/Release/24_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(24,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 8), (proj_dir + "/Work/aie/24_7/Release/24_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(24, 8), (work_dir + "/aie/24_7/Release/24_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(24,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 1), (proj_dir + "/Work/aie/25_0/Release/25_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 1), (work_dir + "/aie/25_0/Release/25_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(25,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 2), (proj_dir + "/Work/aie/25_1/Release/25_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 2), (work_dir + "/aie/25_1/Release/25_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(25,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 3), (proj_dir + "/Work/aie/25_2/Release/25_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 3), (work_dir + "/aie/25_2/Release/25_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(25,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 4), (proj_dir + "/Work/aie/25_3/Release/25_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 4), (work_dir + "/aie/25_3/Release/25_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(25,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 5), (proj_dir + "/Work/aie/25_4/Release/25_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 5), (work_dir + "/aie/25_4/Release/25_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(25,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 6), (proj_dir + "/Work/aie/25_5/Release/25_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 6), (work_dir + "/aie/25_5/Release/25_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(25,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 7), (proj_dir + "/Work/aie/25_6/Release/25_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 7), (work_dir + "/aie/25_6/Release/25_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(25,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 8), (proj_dir + "/Work/aie/25_7/Release/25_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(25, 8), (work_dir + "/aie/25_7/Release/25_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(25,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 1), (proj_dir + "/Work/aie/26_0/Release/26_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 1), (work_dir + "/aie/26_0/Release/26_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(26,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 2), (proj_dir + "/Work/aie/26_1/Release/26_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 2), (work_dir + "/aie/26_1/Release/26_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(26,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 3), (proj_dir + "/Work/aie/26_2/Release/26_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 3), (work_dir + "/aie/26_2/Release/26_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(26,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 4), (proj_dir + "/Work/aie/26_3/Release/26_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 4), (work_dir + "/aie/26_3/Release/26_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(26,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 5), (proj_dir + "/Work/aie/26_4/Release/26_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 5), (work_dir + "/aie/26_4/Release/26_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(26,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 6), (proj_dir + "/Work/aie/26_5/Release/26_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 6), (work_dir + "/aie/26_5/Release/26_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(26,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 7), (proj_dir + "/Work/aie/26_6/Release/26_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 7), (work_dir + "/aie/26_6/Release/26_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(26,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 8), (proj_dir + "/Work/aie/26_7/Release/26_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(26, 8), (work_dir + "/aie/26_7/Release/26_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(26,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 1), (proj_dir + "/Work/aie/27_0/Release/27_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 1), (work_dir + "/aie/27_0/Release/27_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(27,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 2), (proj_dir + "/Work/aie/27_1/Release/27_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 2), (work_dir + "/aie/27_1/Release/27_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(27,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 3), (proj_dir + "/Work/aie/27_2/Release/27_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 3), (work_dir + "/aie/27_2/Release/27_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(27,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 4), (proj_dir + "/Work/aie/27_3/Release/27_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 4), (work_dir + "/aie/27_3/Release/27_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(27,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 5), (proj_dir + "/Work/aie/27_4/Release/27_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 5), (work_dir + "/aie/27_4/Release/27_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(27,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 6), (proj_dir + "/Work/aie/27_5/Release/27_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 6), (work_dir + "/aie/27_5/Release/27_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(27,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 7), (proj_dir + "/Work/aie/27_6/Release/27_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 7), (work_dir + "/aie/27_6/Release/27_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(27,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 8), (proj_dir + "/Work/aie/27_7/Release/27_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(27, 8), (work_dir + "/aie/27_7/Release/27_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(27,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 1), (proj_dir + "/Work/aie/28_0/Release/28_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 1), (work_dir + "/aie/28_0/Release/28_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(28,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 2), (proj_dir + "/Work/aie/28_1/Release/28_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 2), (work_dir + "/aie/28_1/Release/28_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(28,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 3), (proj_dir + "/Work/aie/28_2/Release/28_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 3), (work_dir + "/aie/28_2/Release/28_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(28,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 4), (proj_dir + "/Work/aie/28_3/Release/28_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 4), (work_dir + "/aie/28_3/Release/28_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(28,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 5), (proj_dir + "/Work/aie/28_4/Release/28_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 5), (work_dir + "/aie/28_4/Release/28_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(28,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 6), (proj_dir + "/Work/aie/28_5/Release/28_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 6), (work_dir + "/aie/28_5/Release/28_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(28,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 7), (proj_dir + "/Work/aie/28_6/Release/28_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 7), (work_dir + "/aie/28_6/Release/28_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(28,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 8), (proj_dir + "/Work/aie/28_7/Release/28_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(28, 8), (work_dir + "/aie/28_7/Release/28_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(28,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 1), (proj_dir + "/Work/aie/29_0/Release/29_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 1), (work_dir + "/aie/29_0/Release/29_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(29,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 2), (proj_dir + "/Work/aie/29_1/Release/29_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 2), (work_dir + "/aie/29_1/Release/29_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(29,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 3), (proj_dir + "/Work/aie/29_2/Release/29_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 3), (work_dir + "/aie/29_2/Release/29_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(29,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 4), (proj_dir + "/Work/aie/29_3/Release/29_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 4), (work_dir + "/aie/29_3/Release/29_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(29,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 5), (proj_dir + "/Work/aie/29_4/Release/29_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 5), (work_dir + "/aie/29_4/Release/29_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(29,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 6), (proj_dir + "/Work/aie/29_5/Release/29_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 6), (work_dir + "/aie/29_5/Release/29_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(29,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 7), (proj_dir + "/Work/aie/29_6/Release/29_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 7), (work_dir + "/aie/29_6/Release/29_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(29,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 8), (proj_dir + "/Work/aie/29_7/Release/29_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(29, 8), (work_dir + "/aie/29_7/Release/29_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(29,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 1), (proj_dir + "/Work/aie/30_0/Release/30_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 1), (work_dir + "/aie/30_0/Release/30_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(30,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 2), (proj_dir + "/Work/aie/30_1/Release/30_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 2), (work_dir + "/aie/30_1/Release/30_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(30,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 3), (proj_dir + "/Work/aie/30_2/Release/30_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 3), (work_dir + "/aie/30_2/Release/30_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(30,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 4), (proj_dir + "/Work/aie/30_3/Release/30_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 4), (work_dir + "/aie/30_3/Release/30_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(30,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 5), (proj_dir + "/Work/aie/30_4/Release/30_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 5), (work_dir + "/aie/30_4/Release/30_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(30,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 6), (proj_dir + "/Work/aie/30_5/Release/30_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 6), (work_dir + "/aie/30_5/Release/30_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(30,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 7), (proj_dir + "/Work/aie/30_6/Release/30_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 7), (work_dir + "/aie/30_6/Release/30_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(30,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 8), (proj_dir + "/Work/aie/30_7/Release/30_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(30, 8), (work_dir + "/aie/30_7/Release/30_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(30,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 1), (proj_dir + "/Work/aie/31_0/Release/31_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 1), (work_dir + "/aie/31_0/Release/31_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(31,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 2), (proj_dir + "/Work/aie/31_1/Release/31_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 2), (work_dir + "/aie/31_1/Release/31_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(31,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 3), (proj_dir + "/Work/aie/31_2/Release/31_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 3), (work_dir + "/aie/31_2/Release/31_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(31,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 4), (proj_dir + "/Work/aie/31_3/Release/31_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 4), (work_dir + "/aie/31_3/Release/31_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(31,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 5), (proj_dir + "/Work/aie/31_4/Release/31_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 5), (work_dir + "/aie/31_4/Release/31_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(31,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 6), (proj_dir + "/Work/aie/31_5/Release/31_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 6), (work_dir + "/aie/31_5/Release/31_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(31,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 7), (proj_dir + "/Work/aie/31_6/Release/31_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 7), (work_dir + "/aie/31_6/Release/31_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(31,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 8), (proj_dir + "/Work/aie/31_7/Release/31_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(31, 8), (work_dir + "/aie/31_7/Release/31_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(31,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 1), (proj_dir + "/Work/aie/32_0/Release/32_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 1), (work_dir + "/aie/32_0/Release/32_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(32,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 2), (proj_dir + "/Work/aie/32_1/Release/32_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 2), (work_dir + "/aie/32_1/Release/32_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(32,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 3), (proj_dir + "/Work/aie/32_2/Release/32_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 3), (work_dir + "/aie/32_2/Release/32_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(32,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 4), (proj_dir + "/Work/aie/32_3/Release/32_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 4), (work_dir + "/aie/32_3/Release/32_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(32,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 5), (proj_dir + "/Work/aie/32_4/Release/32_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 5), (work_dir + "/aie/32_4/Release/32_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(32,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 6), (proj_dir + "/Work/aie/32_5/Release/32_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 6), (work_dir + "/aie/32_5/Release/32_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(32,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 7), (proj_dir + "/Work/aie/32_6/Release/32_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 7), (work_dir + "/aie/32_6/Release/32_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(32,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 8), (proj_dir + "/Work/aie/32_7/Release/32_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(32, 8), (work_dir + "/aie/32_7/Release/32_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(32,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 1), (proj_dir + "/Work/aie/33_0/Release/33_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 1), (work_dir + "/aie/33_0/Release/33_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(33,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 2), (proj_dir + "/Work/aie/33_1/Release/33_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 2), (work_dir + "/aie/33_1/Release/33_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(33,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 3), (proj_dir + "/Work/aie/33_2/Release/33_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 3), (work_dir + "/aie/33_2/Release/33_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(33,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 4), (proj_dir + "/Work/aie/33_3/Release/33_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 4), (work_dir + "/aie/33_3/Release/33_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(33,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 5), (proj_dir + "/Work/aie/33_4/Release/33_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 5), (work_dir + "/aie/33_4/Release/33_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(33,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 6), (proj_dir + "/Work/aie/33_5/Release/33_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 6), (work_dir + "/aie/33_5/Release/33_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(33,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 7), (proj_dir + "/Work/aie/33_6/Release/33_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 7), (work_dir + "/aie/33_6/Release/33_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(33,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 8), (proj_dir + "/Work/aie/33_7/Release/33_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(33, 8), (work_dir + "/aie/33_7/Release/33_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(33,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 1), (proj_dir + "/Work/aie/34_0/Release/34_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 1), (work_dir + "/aie/34_0/Release/34_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(34,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 2), (proj_dir + "/Work/aie/34_1/Release/34_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 2), (work_dir + "/aie/34_1/Release/34_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(34,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 3), (proj_dir + "/Work/aie/34_2/Release/34_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 3), (work_dir + "/aie/34_2/Release/34_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(34,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 4), (proj_dir + "/Work/aie/34_3/Release/34_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 4), (work_dir + "/aie/34_3/Release/34_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(34,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 5), (proj_dir + "/Work/aie/34_4/Release/34_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 5), (work_dir + "/aie/34_4/Release/34_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(34,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 6), (proj_dir + "/Work/aie/34_5/Release/34_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 6), (work_dir + "/aie/34_5/Release/34_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(34,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 7), (proj_dir + "/Work/aie/34_6/Release/34_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 7), (work_dir + "/aie/34_6/Release/34_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(34,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 8), (proj_dir + "/Work/aie/34_7/Release/34_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(34, 8), (work_dir + "/aie/34_7/Release/34_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(34,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 1), (proj_dir + "/Work/aie/35_0/Release/35_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 1), (work_dir + "/aie/35_0/Release/35_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(35,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 2), (proj_dir + "/Work/aie/35_1/Release/35_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 2), (work_dir + "/aie/35_1/Release/35_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(35,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 3), (proj_dir + "/Work/aie/35_2/Release/35_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 3), (work_dir + "/aie/35_2/Release/35_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(35,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 4), (proj_dir + "/Work/aie/35_3/Release/35_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 4), (work_dir + "/aie/35_3/Release/35_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(35,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 5), (proj_dir + "/Work/aie/35_4/Release/35_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 5), (work_dir + "/aie/35_4/Release/35_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(35,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 6), (proj_dir + "/Work/aie/35_5/Release/35_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 6), (work_dir + "/aie/35_5/Release/35_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(35,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 7), (proj_dir + "/Work/aie/35_6/Release/35_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 7), (work_dir + "/aie/35_6/Release/35_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(35,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 8), (proj_dir + "/Work/aie/35_7/Release/35_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(35, 8), (work_dir + "/aie/35_7/Release/35_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(35,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 1), (proj_dir + "/Work/aie/36_0/Release/36_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 1), (work_dir + "/aie/36_0/Release/36_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(36,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 2), (proj_dir + "/Work/aie/36_1/Release/36_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 2), (work_dir + "/aie/36_1/Release/36_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(36,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 3), (proj_dir + "/Work/aie/36_2/Release/36_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 3), (work_dir + "/aie/36_2/Release/36_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(36,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 4), (proj_dir + "/Work/aie/36_3/Release/36_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 4), (work_dir + "/aie/36_3/Release/36_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(36,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 5), (proj_dir + "/Work/aie/36_4/Release/36_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 5), (work_dir + "/aie/36_4/Release/36_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(36,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 6), (proj_dir + "/Work/aie/36_5/Release/36_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 6), (work_dir + "/aie/36_5/Release/36_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(36,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 7), (proj_dir + "/Work/aie/36_6/Release/36_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 7), (work_dir + "/aie/36_6/Release/36_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(36,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 8), (proj_dir + "/Work/aie/36_7/Release/36_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(36, 8), (work_dir + "/aie/36_7/Release/36_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(36,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 1), (proj_dir + "/Work/aie/37_0/Release/37_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 1), (work_dir + "/aie/37_0/Release/37_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(37,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 2), (proj_dir + "/Work/aie/37_1/Release/37_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 2), (work_dir + "/aie/37_1/Release/37_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(37,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 3), (proj_dir + "/Work/aie/37_2/Release/37_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 3), (work_dir + "/aie/37_2/Release/37_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(37,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 4), (proj_dir + "/Work/aie/37_3/Release/37_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 4), (work_dir + "/aie/37_3/Release/37_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(37,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 5), (proj_dir + "/Work/aie/37_4/Release/37_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 5), (work_dir + "/aie/37_4/Release/37_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(37,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 6), (proj_dir + "/Work/aie/37_5/Release/37_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 6), (work_dir + "/aie/37_5/Release/37_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(37,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 7), (proj_dir + "/Work/aie/37_6/Release/37_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 7), (work_dir + "/aie/37_6/Release/37_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(37,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 8), (proj_dir + "/Work/aie/37_7/Release/37_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(37, 8), (work_dir + "/aie/37_7/Release/37_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(37,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 1), (proj_dir + "/Work/aie/38_0/Release/38_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 1), (work_dir + "/aie/38_0/Release/38_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(38,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 2), (proj_dir + "/Work/aie/38_1/Release/38_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 2), (work_dir + "/aie/38_1/Release/38_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(38,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 3), (proj_dir + "/Work/aie/38_2/Release/38_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 3), (work_dir + "/aie/38_2/Release/38_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(38,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 4), (proj_dir + "/Work/aie/38_3/Release/38_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 4), (work_dir + "/aie/38_3/Release/38_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(38,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 5), (proj_dir + "/Work/aie/38_4/Release/38_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 5), (work_dir + "/aie/38_4/Release/38_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(38,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 6), (proj_dir + "/Work/aie/38_5/Release/38_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 6), (work_dir + "/aie/38_5/Release/38_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(38,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 7), (proj_dir + "/Work/aie/38_6/Release/38_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 7), (work_dir + "/aie/38_6/Release/38_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(38,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 8), (proj_dir + "/Work/aie/38_7/Release/38_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(38, 8), (work_dir + "/aie/38_7/Release/38_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(38,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 1), (proj_dir + "/Work/aie/39_0/Release/39_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 1), (work_dir + "/aie/39_0/Release/39_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(39,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 2), (proj_dir + "/Work/aie/39_1/Release/39_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 2), (work_dir + "/aie/39_1/Release/39_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(39,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 3), (proj_dir + "/Work/aie/39_2/Release/39_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 3), (work_dir + "/aie/39_2/Release/39_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(39,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 4), (proj_dir + "/Work/aie/39_3/Release/39_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 4), (work_dir + "/aie/39_3/Release/39_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(39,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 5), (proj_dir + "/Work/aie/39_4/Release/39_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 5), (work_dir + "/aie/39_4/Release/39_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(39,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 6), (proj_dir + "/Work/aie/39_5/Release/39_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 6), (work_dir + "/aie/39_5/Release/39_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(39,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 7), (proj_dir + "/Work/aie/39_6/Release/39_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 7), (work_dir + "/aie/39_6/Release/39_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(39,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 8), (proj_dir + "/Work/aie/39_7/Release/39_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(39, 8), (work_dir + "/aie/39_7/Release/39_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(39,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 1), (proj_dir + "/Work/aie/40_0/Release/40_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 1), (work_dir + "/aie/40_0/Release/40_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(40,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 2), (proj_dir + "/Work/aie/40_1/Release/40_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 2), (work_dir + "/aie/40_1/Release/40_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(40,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 3), (proj_dir + "/Work/aie/40_2/Release/40_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 3), (work_dir + "/aie/40_2/Release/40_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(40,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 4), (proj_dir + "/Work/aie/40_3/Release/40_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 4), (work_dir + "/aie/40_3/Release/40_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(40,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 5), (proj_dir + "/Work/aie/40_4/Release/40_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 5), (work_dir + "/aie/40_4/Release/40_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(40,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 6), (proj_dir + "/Work/aie/40_5/Release/40_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 6), (work_dir + "/aie/40_5/Release/40_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(40,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 7), (proj_dir + "/Work/aie/40_6/Release/40_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 7), (work_dir + "/aie/40_6/Release/40_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(40,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 8), (proj_dir + "/Work/aie/40_7/Release/40_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(40, 8), (work_dir + "/aie/40_7/Release/40_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(40,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 1), (proj_dir + "/Work/aie/41_0/Release/41_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 1), (work_dir + "/aie/41_0/Release/41_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(41,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 2), (proj_dir + "/Work/aie/41_1/Release/41_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 2), (work_dir + "/aie/41_1/Release/41_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(41,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 3), (proj_dir + "/Work/aie/41_2/Release/41_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 3), (work_dir + "/aie/41_2/Release/41_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(41,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 4), (proj_dir + "/Work/aie/41_3/Release/41_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 4), (work_dir + "/aie/41_3/Release/41_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(41,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 5), (proj_dir + "/Work/aie/41_4/Release/41_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 5), (work_dir + "/aie/41_4/Release/41_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(41,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 6), (proj_dir + "/Work/aie/41_5/Release/41_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 6), (work_dir + "/aie/41_5/Release/41_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(41,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 7), (proj_dir + "/Work/aie/41_6/Release/41_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 7), (work_dir + "/aie/41_6/Release/41_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(41,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 8), (proj_dir + "/Work/aie/41_7/Release/41_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(41, 8), (work_dir + "/aie/41_7/Release/41_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(41,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 1), (proj_dir + "/Work/aie/42_0/Release/42_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 1), (work_dir + "/aie/42_0/Release/42_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(42,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 2), (proj_dir + "/Work/aie/42_1/Release/42_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 2), (work_dir + "/aie/42_1/Release/42_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(42,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 3), (proj_dir + "/Work/aie/42_2/Release/42_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 3), (work_dir + "/aie/42_2/Release/42_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(42,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 4), (proj_dir + "/Work/aie/42_3/Release/42_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 4), (work_dir + "/aie/42_3/Release/42_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(42,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 5), (proj_dir + "/Work/aie/42_4/Release/42_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 5), (work_dir + "/aie/42_4/Release/42_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(42,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 6), (proj_dir + "/Work/aie/42_5/Release/42_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 6), (work_dir + "/aie/42_5/Release/42_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(42,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 7), (proj_dir + "/Work/aie/42_6/Release/42_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 7), (work_dir + "/aie/42_6/Release/42_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(42,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 8), (proj_dir + "/Work/aie/42_7/Release/42_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(42, 8), (work_dir + "/aie/42_7/Release/42_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(42,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 1), (proj_dir + "/Work/aie/43_0/Release/43_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 1), (work_dir + "/aie/43_0/Release/43_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(43,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 2), (proj_dir + "/Work/aie/43_1/Release/43_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 2), (work_dir + "/aie/43_1/Release/43_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(43,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 3), (proj_dir + "/Work/aie/43_2/Release/43_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 3), (work_dir + "/aie/43_2/Release/43_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(43,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 4), (proj_dir + "/Work/aie/43_3/Release/43_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 4), (work_dir + "/aie/43_3/Release/43_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(43,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 5), (proj_dir + "/Work/aie/43_4/Release/43_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 5), (work_dir + "/aie/43_4/Release/43_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(43,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 6), (proj_dir + "/Work/aie/43_5/Release/43_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 6), (work_dir + "/aie/43_5/Release/43_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(43,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 7), (proj_dir + "/Work/aie/43_6/Release/43_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 7), (work_dir + "/aie/43_6/Release/43_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(43,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 8), (proj_dir + "/Work/aie/43_7/Release/43_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(43, 8), (work_dir + "/aie/43_7/Release/43_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(43,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 1), (proj_dir + "/Work/aie/44_0/Release/44_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 1), (work_dir + "/aie/44_0/Release/44_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(44,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 2), (proj_dir + "/Work/aie/44_1/Release/44_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 2), (work_dir + "/aie/44_1/Release/44_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(44,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 3), (proj_dir + "/Work/aie/44_2/Release/44_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 3), (work_dir + "/aie/44_2/Release/44_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(44,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 4), (proj_dir + "/Work/aie/44_3/Release/44_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 4), (work_dir + "/aie/44_3/Release/44_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(44,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 5), (proj_dir + "/Work/aie/44_4/Release/44_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 5), (work_dir + "/aie/44_4/Release/44_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(44,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 6), (proj_dir + "/Work/aie/44_5/Release/44_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 6), (work_dir + "/aie/44_5/Release/44_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(44,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 7), (proj_dir + "/Work/aie/44_6/Release/44_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 7), (work_dir + "/aie/44_6/Release/44_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(44,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 8), (proj_dir + "/Work/aie/44_7/Release/44_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(44, 8), (work_dir + "/aie/44_7/Release/44_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(44,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 1), (proj_dir + "/Work/aie/45_0/Release/45_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 1), (work_dir + "/aie/45_0/Release/45_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(45,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 2), (proj_dir + "/Work/aie/45_1/Release/45_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 2), (work_dir + "/aie/45_1/Release/45_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(45,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 3), (proj_dir + "/Work/aie/45_2/Release/45_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 3), (work_dir + "/aie/45_2/Release/45_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(45,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 4), (proj_dir + "/Work/aie/45_3/Release/45_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 4), (work_dir + "/aie/45_3/Release/45_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(45,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 5), (proj_dir + "/Work/aie/45_4/Release/45_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 5), (work_dir + "/aie/45_4/Release/45_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(45,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 6), (proj_dir + "/Work/aie/45_5/Release/45_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 6), (work_dir + "/aie/45_5/Release/45_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(45,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 7), (proj_dir + "/Work/aie/45_6/Release/45_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 7), (work_dir + "/aie/45_6/Release/45_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(45,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 8), (proj_dir + "/Work/aie/45_7/Release/45_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(45, 8), (work_dir + "/aie/45_7/Release/45_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(45,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 1), (proj_dir + "/Work/aie/46_0/Release/46_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 1), (work_dir + "/aie/46_0/Release/46_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(46,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 2), (proj_dir + "/Work/aie/46_1/Release/46_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 2), (work_dir + "/aie/46_1/Release/46_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(46,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 3), (proj_dir + "/Work/aie/46_2/Release/46_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 3), (work_dir + "/aie/46_2/Release/46_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(46,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 4), (proj_dir + "/Work/aie/46_3/Release/46_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 4), (work_dir + "/aie/46_3/Release/46_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(46,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 5), (proj_dir + "/Work/aie/46_4/Release/46_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 5), (work_dir + "/aie/46_4/Release/46_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(46,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 6), (proj_dir + "/Work/aie/46_5/Release/46_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 6), (work_dir + "/aie/46_5/Release/46_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(46,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 7), (proj_dir + "/Work/aie/46_6/Release/46_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 7), (work_dir + "/aie/46_6/Release/46_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(46,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 8), (proj_dir + "/Work/aie/46_7/Release/46_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(46, 8), (work_dir + "/aie/46_7/Release/46_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(46,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 1), (proj_dir + "/Work/aie/47_0/Release/47_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 1), (work_dir + "/aie/47_0/Release/47_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(47,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 2), (proj_dir + "/Work/aie/47_1/Release/47_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 2), (work_dir + "/aie/47_1/Release/47_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(47,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 3), (proj_dir + "/Work/aie/47_2/Release/47_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 3), (work_dir + "/aie/47_2/Release/47_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(47,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 4), (proj_dir + "/Work/aie/47_3/Release/47_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 4), (work_dir + "/aie/47_3/Release/47_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(47,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 5), (proj_dir + "/Work/aie/47_4/Release/47_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 5), (work_dir + "/aie/47_4/Release/47_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(47,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 6), (proj_dir + "/Work/aie/47_5/Release/47_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 6), (work_dir + "/aie/47_5/Release/47_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(47,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 7), (proj_dir + "/Work/aie/47_6/Release/47_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 7), (work_dir + "/aie/47_6/Release/47_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(47,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 8), (proj_dir + "/Work/aie/47_7/Release/47_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(47, 8), (work_dir + "/aie/47_7/Release/47_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(47,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 1), (proj_dir + "/Work/aie/48_0/Release/48_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 1), (work_dir + "/aie/48_0/Release/48_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(48,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 2), (proj_dir + "/Work/aie/48_1/Release/48_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 2), (work_dir + "/aie/48_1/Release/48_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(48,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 3), (proj_dir + "/Work/aie/48_2/Release/48_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 3), (work_dir + "/aie/48_2/Release/48_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(48,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 4), (proj_dir + "/Work/aie/48_3/Release/48_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 4), (work_dir + "/aie/48_3/Release/48_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(48,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 5), (proj_dir + "/Work/aie/48_4/Release/48_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 5), (work_dir + "/aie/48_4/Release/48_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(48,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 6), (proj_dir + "/Work/aie/48_5/Release/48_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 6), (work_dir + "/aie/48_5/Release/48_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(48,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 7), (proj_dir + "/Work/aie/48_6/Release/48_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 7), (work_dir + "/aie/48_6/Release/48_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(48,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 8), (proj_dir + "/Work/aie/48_7/Release/48_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(48, 8), (work_dir + "/aie/48_7/Release/48_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(48,8)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 1), (proj_dir + "/Work/aie/49_0/Release/49_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 1), (work_dir + "/aie/49_0/Release/49_0").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(49,1)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 2), (proj_dir + "/Work/aie/49_1/Release/49_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 2), (work_dir + "/aie/49_1/Release/49_1").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(49,2)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 3), (proj_dir + "/Work/aie/49_2/Release/49_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 3), (work_dir + "/aie/49_2/Release/49_2").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(49,3)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 4), (proj_dir + "/Work/aie/49_3/Release/49_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 4), (work_dir + "/aie/49_3/Release/49_3").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(49,4)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 5), (proj_dir + "/Work/aie/49_4/Release/49_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 5), (work_dir + "/aie/49_4/Release/49_4").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(49,5)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 6), (proj_dir + "/Work/aie/49_5/Release/49_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 6), (work_dir + "/aie/49_5/Release/49_5").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(49,6)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 7), (proj_dir + "/Work/aie/49_6/Release/49_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 7), (work_dir + "/aie/49_6/Release/49_6").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(49,7)" << std::endl;
-	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 8), (proj_dir + "/Work/aie/49_7/Release/49_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
+	if(XAie_LoadElf(&DevInst, XAie_TileLoc(49, 8), (work_dir + "/aie/49_7/Release/49_7").c_str(), XAIE_ENABLE)!=XAIE_OK)
 		std::cerr << "ERROR: Failed to load elf for core(49,8)" << std::endl;
+	#endif
+
   }
 
   void my_graph_init()
   {
 
-	XAieLib_print("Initializing graph my_graph...\n");
-    #if defined(__PS_INIT_AIE__) || defined(PS_INIT_AIE)
+	printf("Initializing graph my_graph...\n");
+    #ifdef __PS_INIT_AIE__
 
 	// S_EAST_ch0_C0_R0 M_NORTH_ch3_C0_R0 net600
 
@@ -2642,7 +2642,7 @@ XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
 	XAie_StrmConnCctEnable(&DevInst, XAie_TileLoc(29, 1), SOUTH, 5, WEST, 3);
 
 
-	XAieLib_print("Resetting cores of graph my_graph...\n");
+	printf("Resetting cores of graph my_graph...\n");
 	XAie_CoreReset(&DevInst, XAie_TileLoc(0, 1));
 	XAie_CoreUnreset(&DevInst, XAie_TileLoc(0, 1));
 	XAie_CoreReset(&DevInst, XAie_TileLoc(0, 2));
@@ -3444,7 +3444,7 @@ XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
 	XAie_CoreReset(&DevInst, XAie_TileLoc(49, 8));
 	XAie_CoreUnreset(&DevInst, XAie_TileLoc(49, 8));
 
-	XAieLib_print("Configuring DMAs of graph my_graph...\n");
+	printf("Configuring DMAs of graph my_graph...\n");
 
 	//Setting buffer buf0
 	{
@@ -3846,7 +3846,7 @@ XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
 	XAie_DmaChannelPushBdToQueue(&DevInst, XAie_TileLoc(49, 7), 1, DMA_MM2S, 2);
 	XAie_DmaChannelEnable(&DevInst, XAie_TileLoc(49, 7), 1, DMA_MM2S);
 
-	XAieLib_print("Configuring PL-Interface for graph my_graph...\n");
+	printf("Configuring PL-Interface for graph my_graph...\n");
 	XAie_PlIfBliBypassDisable(&DevInst, XAie_TileLoc(6, 0), 0);
 	XAie_PlToAieIntfEnable (&DevInst, XAie_TileLoc(6, 0), 0, PLIF_WIDTH_64);
 	XAie_PlIfBliBypassDisable(&DevInst, XAie_TileLoc(7, 0), 0);
@@ -3888,7 +3888,7 @@ XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
 
  void my_graph_core_debug_halt()
   {
-	XAieLib_print("Putting core(s) of graph my_graph on halt state for debugging...\n");
+	printf("Putting core(s) of graph my_graph on halt state for debugging...\n");
 	XAie_CoreDebugHalt(&DevInst, XAie_TileLoc(0, 1));
 	XAie_CoreDebugHalt(&DevInst, XAie_TileLoc(0, 2));
 	XAie_CoreDebugHalt(&DevInst, XAie_TileLoc(0, 3));
@@ -4294,7 +4294,7 @@ XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
 
   void my_graph_core_enable()
   {
-	XAieLib_print("Enabling core(s) of graph my_graph...\n");
+	printf("Enabling core(s) of graph my_graph...\n");
 	XAie_CoreEnable(&DevInst, XAie_TileLoc(0,1 ));
 	XAie_CoreEnable(&DevInst, XAie_TileLoc(0,2 ));
 	XAie_CoreEnable(&DevInst, XAie_TileLoc(0,3 ));
@@ -4742,55 +4742,49 @@ XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
 /************************** PLIO Configurations  *****************************/
 
   adf::PLIOConfig PLIOConfigurations[] = {
-  //{id, shim_column, slaveOrMaster, streamId}
-    {0, 6, 0, 0}, //plin[0], i0
-    {1, 7, 0, 0}, //plin[1], i1
-    {2, 11, 0, 0}, //plin[2], i2
-    {3, 17, 0, 0}, //plin[3], i3
-    {4, 23, 0, 0}, //plin[4], i4
-    {5, 29, 0, 0}, //plin[5], i5
-    {6, 35, 0, 0}, //plin[6], i6
-    {7, 41, 0, 0}, //plin[7], i7
-    {8, 43, 1, 0}, //plout[0], i8
-    {9, 40, 1, 0}, //plout[1], i9
-    {10, 34, 1, 0}, //plout[2], i10
-    {11, 28, 1, 0}, //plout[3], i11
-    {12, 22, 1, 0}, //plout[4], i12
-    {13, 16, 1, 0}, //plout[5], i13
-    {14, 10, 1, 0}, //plout[6], i14
-    {15, 6, 1, 5}, //plout[7], i15
+  //{id, name, loginal_name, shim_column, slaveOrMaster, streamId}
+    {0, "plin[0]", "plioin0", 6, 0, 0},
+    {1, "plin[1]", "plioin1", 7, 0, 0},
+    {2, "plin[2]", "plioin2", 11, 0, 0},
+    {3, "plin[3]", "plioin3", 17, 0, 0},
+    {4, "plin[4]", "plioin4", 23, 0, 0},
+    {5, "plin[5]", "plioin5", 29, 0, 0},
+    {6, "plin[6]", "plioin6", 35, 0, 0},
+    {7, "plin[7]", "plioin7", 41, 0, 0},
+    {8, "plout[0]", "plioout0", 43, 1, 0},
+    {9, "plout[1]", "plioout1", 40, 1, 0},
+    {10, "plout[2]", "plioout2", 34, 1, 0},
+    {11, "plout[3]", "plioout3", 28, 1, 0},
+    {12, "plout[4]", "plioout4", 22, 1, 0},
+    {13, "plout[5]", "plioout5", 16, 1, 0},
+    {14, "plout[6]", "plioout6", 10, 1, 0},
+    {15, "plout[7]", "plioout7", 6, 1, 5},
   };
   const int NUM_PLIO = 16;
 
 
-/************************** AIE driver and Cardano API initializer *****************************/
+/************************** AIE driver and ADF API initializer *****************************/
 
   class InitializeAIEControl
   {
   public:
     InitializeAIEControl()
     {
-      XAieLib_print("Initializing AIE driver...\n");
+      printf("Initializing AIE driver...\n");
       XAie_SetupConfig(ConfigPtr, HW_GEN, XAIE_BASE_ADDR, XAIE_COL_SHIFT,
                        XAIE_ROW_SHIFT, XAIE_NUM_COLS, XAIE_NUM_ROWS,
-                       XAIE_SHIM_ROW, XAIE_MEM_TILE_ROW_START,
-                       XAIE_MEM_TILE_NUM_ROWS, XAIE_AIE_TILE_ROW_START,
+                       XAIE_SHIM_ROW, XAIE_RESERVED_ROW_START,
+                       XAIE_RESERVED_NUM_ROWS, XAIE_AIE_TILE_ROW_START,
                        XAIE_AIE_TILE_NUM_ROWS);
 
       XAie_CfgInitialize(&(DevInst), &ConfigPtr);
 
-      XAieLib_print("Initializing Cardano API...\n");
+      printf("Initializing ADF API...\n");
 
 #if defined(__AIESIM__) && !defined(__CDO__)
       extern unsigned ess_debug;
 #else
       unsigned ess_debug = false;
-#endif
-
-#if defined(__PS_ENABLE_AIE__) || defined(PS_ENABLE_AIE)
-      bool ps_enable_aie = true;
-#else
-      bool ps_enable_aie = false;
 #endif
 
 #ifdef __EXCLUDE_PL_CONTROL__
@@ -4799,7 +4793,7 @@ XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
       bool exclude_pl_control = false;
 #endif
 
-      adf::initializeConfigurations(&DevInst, XAIE_NUM_COLS, XAIE_AIE_TILE_NUM_ROWS, XAIE_MEM_TILE_NUM_ROWS,
+      adf::initializeConfigurations(&DevInst, XAIE_NUM_COLS, XAIE_AIE_TILE_NUM_ROWS, XAIE_RESERVED_NUM_ROWS,
                                         nullptr, 0,
                                         GraphConfigurations, NUM_GRAPH,
                                         nullptr, 0,
@@ -4808,13 +4802,9 @@ XAie_InstDeclare(DevInst, &ConfigPtr);   // Declare global device instance
                                         nullptr, 0,
                                         PLIOConfigurations, NUM_PLIO,
                                         nullptr, 0, 0, nullptr,
-                                        CTRL_PL_OFFSET, CTRL_IP_STRIDE, ps_enable_aie, ess_debug, exclude_pl_control, true);
+                                        ess_debug, exclude_pl_control, false);
 
-#if defined(__AIESIM__) && !defined(__CDO__)
       XAie_TurnEccOff(&DevInst);
-#else
-      XAie_TurnEccOn(&DevInst);
-#endif
     }
   } initAIEControl;
 
