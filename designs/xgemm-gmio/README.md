@@ -43,35 +43,34 @@ Follow the PetaLinux boot process to boot the Linux on the target. At the Linux 
 The AIE XCLBIN and executable are pre-installed in the `/usr/bin/` directory.
 
 ```
-root@xilinx-vck190-2021_1:~# aie-matrix-multiplication
+root@xilinx-vck190-2021_2:~# aie-matrix-multiplication
 Initializing ADF API...
 [INFO] AIE GMIO Matrix Multiplication
 [INFO] Matrix size(int32): 1200x1200
-[   32.203331] zocl-drm axi:zyxclmm_drm: zocl_create_client: created KDS client for pid(807), ret: 0
-[   32.212235] zocl-drm axi:zyxclmm_drm: zocl_destroy_client: client exits pid(807)
-[   32.219765] zocl-drm axi:zyxclmm_drm: zocl_create_client: created KDS client for pid(807), ret: 0
-[   32.263546] [drm] found kind 29(AIE_RESOURCES)
-[50096.973]Loading PDI from DDR
-[50097.059]Monolithic/Master Device
-[50100.223]3.216 ms: PDI initialization time
-[50104.108]+++Loading Image#: 0x0, Name: aie_image, Id: 0x1C000000
-[50109.922]---Loading Partition#: 0x0, Id: 0x0
-[50165.454] 51.393 ms for Partition#: 0x0, Size: 19074224 Bytes
-[50168.293]Subsystem PDI Load: Done
-[   32.263563] [drm] found kind 18(PDI)
-[   32.358785] [drm] FPGA Manager load DONE
-[   32.370722] [drm] skip kind 8(IP_LAYOUT) return code: -22
-[   32.374651] [drm] skip kind 9(DEBUG_IP_LAYOUT) return code: -22
-[   32.380049] [drm] found kind 25(AIE_METADATA)
-[   32.385978] [drm] skip kind 7(CONNECTIVITY) return code: -22
-[   32.390330] [drm] skip kind 6(MEM_TOPOLOGY) return code: -22
+[   68.288633] zocl-drm axi:zyxclmm_drm: zocl_create_client: created KDS client for pid(824), ret: 0
+[   68.297535] zocl-drm axi:zyxclmm_drm: zocl_destroy_client: client exits pid(824)
+[   68.304999] zocl-drm axi:zyxclmm_drm: zocl_create_client: created KDS client for pid(824), ret: 0
+[   68.349096] [drm] found kind 29(AIE_RESOURCES)
+[80573.078]Loading PDI from DDR
+[80573.164]Monolithic/Master Device
+[80576.303]3.190 ms: PDI initialization time
+[80580.153]+++Loading Image#: 0x0, Name: aie_image, Id: 0x1C000000
+[80585.916]---Loading Partition#: 0x0, Id: 0x0
+[80645.089] 55.070 ms for Partition#: 0x0, Size: 19127040 Bytes
+[80647.906]Subsystem PDI Load: Done
+[   68.349108] [drm] found kind 18(PDI)
+[   68.448707] [drm] FPGA Manager load DONE
+[   68.455278] [drm] Partition 1 already requested
+XAIEFAL: INFO: Resource group Avail is created.
+XAIEFAL: INFO: Resource group Static is created.
+XAIEFAL: INFO: Resource group Generic is created.
 [INFO] XCLBIN download complete
 [INFO] AIE cores are done executing
 [INFO] Running sanity check
 [INFO] XGeMM Success!
-[   32.396205] [drm] zocl_xclbin_read_axlf 3aa4954d-c654-d1b3-e9ec-eaf99ec1e13b ret: 0
-[   30.388666] zocl-drm axi:zyxclmm_drm: zocl_destroy_client: client exits pid(807)
-root@xilinx-vck190-2021_1:
+[   68.469075] [drm] zocl_xclbin_read_axlf fe3eeecf-1b48-4862-4723-5aba0732fe7b ret: 0
+[  114.412806] zocl-drm axi:zyxclmm_drm: zocl_destroy_client: client exits pid(824)
+root@xilinx-vck190-2021_2:~#
 ```
 
 ## Customizing and Rebuilding
