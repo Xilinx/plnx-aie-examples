@@ -12,7 +12,7 @@ AIE_XCLBIN	= $(APP_DIR)/$(APP).xclbin
 
 XRT_CFG		= xrt.ini
 
-PFM_XPFM	:= $(shell test -d $(PTLNX_BSP_DIR) && find $(PTLNX_BSP_DIR) -name *.xpfm)
+PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xpfm)
 
 .PHONY: all clean
 all: clean package

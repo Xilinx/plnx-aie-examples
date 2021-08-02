@@ -5,11 +5,14 @@
 
 all: create
 
-$(PTLNX_BSP_DIR):
-	petalinux-create --force -t project -s $(PTLNX_BSP) -n $(PTLNX_DIR)
+$(BASE_PLATFORM):
+	cp -r $(BASE_XSA) base.xsa
+	xsct platform_create.tcl
 
-create: $(PTLNX_BSP_DIR)
+create: $(BASE_PLATFORM)
 
 .PHONY: clean
 clean:
-	rm -rf $(PTLNX_BSP_DIR)
+	rm -rf *.xsa
+	rm -rf base_vck190
+	rm -rf .Xil

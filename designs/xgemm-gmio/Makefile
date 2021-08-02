@@ -5,9 +5,13 @@
 
 APP		:= aie-matrix-multiplication
 
-PFM_XPFM	:= $(shell test -d $(PTLNX_BSP_DIR) && find $(PTLNX_BSP_DIR) -name *.xpfm)
+PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xpfm)
 
+ifeq ($(SYSROOT),)
 all: platform compile aie_xclbin hw sw cross-compile package
+else
+all: platform compile aie_xclbin hw cross-compile
+endif
 
 platform:
 	$(MAKE) all -C $(PFMS_DIR)
