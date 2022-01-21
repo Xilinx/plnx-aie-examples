@@ -13,11 +13,19 @@ class XGeMM : public adf::graph {
 	private:
   		kernel krnl[NUM_HW_ROWS][NUM_HW_COLS];
 	public:
-		input_port matrix_ab[NUM_HW_ROWS];
-		output_port result[NUM_HW_ROWS];
+		input_gmio matrix_ab[NUM_HW_ROWS];
+		output_gmio result[NUM_HW_ROWS];
 
 		XGeMM() {
 			for (int r = 0; r < NUM_HW_ROWS; r++) {
+				char str[10];
+
+				sprintf(str, "gmioin%d", r);
+				matrix_ab[r] = input_gmio::create(str, 64, 1);
+
+				sprintf(str, "gmioout%d", r);
+				result[r] = output_gmio::create(str, 64, 1);
+
 				krnl[r][0] = kernel::create(OneInput);
 				source(krnl[r][0]) = "kernels/one_input.cc";
 				runtime<ratio>(krnl[r][0]) = 0.9;
@@ -35,14 +43,14 @@ class XGeMM : public adf::graph {
 				runtime<ratio>(krnl[r][NUM_HW_COLS - 1]) = 0.9;
 				location<kernel>(krnl[r][NUM_HW_COLS - 1]) = tile(NUM_HW_COLS - 1, r);
 
-				connect<window<WIN_SIZE_BYTES>> (matrix_ab[r], async(krnl[r][0].in[0]));
+				connect<window<WIN_SIZE_BYTES>>(matrix_ab[r].out[0], async(krnl[r][0].in[0]));
 
 				for (int i = 0; i < NUM_HW_COLS - 1; i++) {
-   					connect<window<WIN_SIZE_BYTES>> (async(krnl[r][i].out[0]), async(krnl[r][i + 1].in[0]));
-					connect<window<WIN_SIZE_BYTES>> (async(krnl[r][i].out[1]), async(krnl[r][i + 1].in[1]));
+					connect<window<WIN_SIZE_BYTES>>(async(krnl[r][i].out[0]), async(krnl[r][i + 1].in[0]));
+					connect<window<WIN_SIZE_BYTES>>(async(krnl[r][i].out[1]), async(krnl[r][i + 1].in[1]));
 				}
 
-				connect<window<WIN_SIZE_BYTES>> (async(krnl[r][NUM_HW_COLS - 1].out[0]), result[r]);
+				connect<window<WIN_SIZE_BYTES>>(async(krnl[r][NUM_HW_COLS - 1].out[0]), result[r].in[0]);
 			}
 		}
 };

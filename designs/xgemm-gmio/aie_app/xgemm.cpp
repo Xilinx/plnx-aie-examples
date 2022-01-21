@@ -16,56 +16,7 @@
 
 using namespace adf;
 
-GMIO gmin[NUM_HW_ROWS] = {
-	GMIO("gmioin0", 64, 1),
-	GMIO("gmioin1", 64, 1),
-	GMIO("gmioin2", 64, 1),
-	GMIO("gmioin3", 64, 1),
-	GMIO("gmioin4", 64, 1),
-	GMIO("gmioin5", 64, 1),
-	GMIO("gmioin6", 64, 1),
-	GMIO("gmioin7", 64, 1),
-};
-
-GMIO gmout[NUM_HW_ROWS] = {
-	GMIO("gmioout0", 64, 1),
-	GMIO("gmioout1", 64, 1),
-	GMIO("gmioout2", 64, 1),
-	GMIO("gmioout3", 64, 1),
-	GMIO("gmioout4", 64, 1),
-	GMIO("gmioout5", 64, 1),
-	GMIO("gmioout6", 64, 1),
-	GMIO("gmioout7", 64, 1),
-};
-
 XGeMM my_graph;
-
-simulation::platform<NUM_HW_ROWS, NUM_HW_ROWS> platform(&gmin[0], &gmin[1],
-							&gmin[2], &gmin[3],
-							&gmin[4], &gmin[5],
-							&gmin[6], &gmin[7],
-							&gmout[0], &gmout[1],
-							&gmout[2], &gmout[3],
-							&gmout[4], &gmout[5],
-							&gmout[6], &gmout[7]);
-
-connect<> in0(platform.src[0], my_graph.matrix_ab[0]);
-connect<> in1(platform.src[1], my_graph.matrix_ab[1]);
-connect<> in2(platform.src[2], my_graph.matrix_ab[2]);
-connect<> in3(platform.src[3], my_graph.matrix_ab[3]);
-connect<> in4(platform.src[4], my_graph.matrix_ab[4]);
-connect<> in5(platform.src[5], my_graph.matrix_ab[5]);
-connect<> in6(platform.src[6], my_graph.matrix_ab[6]);
-connect<> in7(platform.src[7], my_graph.matrix_ab[7]);
-
-connect<> out0(my_graph.result[0], platform.sink[0]);
-connect<> out1(my_graph.result[1], platform.sink[1]);
-connect<> out2(my_graph.result[2], platform.sink[2]);
-connect<> out3(my_graph.result[3], platform.sink[3]);
-connect<> out4(my_graph.result[4], platform.sink[4]);
-connect<> out5(my_graph.result[5], platform.sink[5]);
-connect<> out6(my_graph.result[6], platform.sink[6]);
-connect<> out7(my_graph.result[7], platform.sink[7]);
 
 #if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__)
 static std::vector<char>
@@ -183,14 +134,14 @@ int main(int argc, char ** argv)
 	}
 
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
-		gmin[i].gm2aie_nb(in_aie_a[i], MAT_A_CHUNK_SIZE);
-		gmin[i].gm2aie_nb(in_aie_bt[0], NUM_ELMNTS * sizeof(int));
+		my_graph.matrix_ab[i].gm2aie_nb(in_aie_a[i], MAT_A_CHUNK_SIZE);
+		my_graph.matrix_ab[i].gm2aie_nb(in_aie_bt[0], NUM_ELMNTS * sizeof(int));
 
 		/* Enable AIE cores */
 		if (i == 0)
 			my_graph.run(1);
 
-		gmout[i].aie2gm_nb(out_aie_c[i], MAT_A_CHUNK_SIZE);
+		my_graph.result[i].aie2gm_nb(out_aie_c[i], MAT_A_CHUNK_SIZE);
 	}
 
 	/*
@@ -198,7 +149,7 @@ int main(int argc, char ** argv)
 	 * gmout
 	 */
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
-		gmout[i].wait();
+		my_graph.result[i].wait();
 	}
 	std::cout << "[INFO] AIE cores are done executing" << std::endl;
 
