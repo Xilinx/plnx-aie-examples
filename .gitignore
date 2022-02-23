@@ -41,6 +41,7 @@ aie-matrix-multiplication
 *.xpe
 *.dot
 *.bif
+*_summary
 
 # ctags file
 tags
