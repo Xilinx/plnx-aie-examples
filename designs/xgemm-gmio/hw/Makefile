@@ -11,12 +11,12 @@ CONNECTIVITY_SPEC	:= system.cfg
 
 PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xpfm)
 
-VPP_FLAGS := -t $(TARGET) -f $(PFM_XPFM) --save-temps -g --vivado.param project.writeIntermediateCheckpoints=1 --advanced.param compiler.addOutputTypes="hw_export"
+VPP_FLAGS := -t $(TARGET) -f $(PFM_XPFM) --save-temps -g
 
 .PHONY: all
-all: $(TARGET).xclbin
+all: $(TARGET).xsa
 
-$(TARGET).xclbin: $(LIBADF) $(CONNECTIVITY_SPEC)
+$(TARGET).xsa: $(LIBADF) $(CONNECTIVITY_SPEC)
 	$(VPP) -l $(VPP_FLAGS) $(LIBADF) --config $(CONNECTIVITY_SPEC) -o $@
 
 clean:
