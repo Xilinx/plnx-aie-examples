@@ -28,7 +28,7 @@ libadf.a: xgemm.cpp
 	aiecompiler -v --target=hw --platform=$(PFM_XPFM) --dataflow $<
 
 $(APP): xgemm.cpp Work/ps/c_rts/aie_control_xrt.cpp
-	$(CXX) $(CFLAGS) $^ $(INCDIRS) $(LDFLAGS) -o $@
+	$(CXX) $(CXXFLAGS) $^ $(INCDIRS) $(LDFLAGS) -o $@
 
 .PHONY: clean
 clean:
@@ -37,4 +37,5 @@ clean:
 	rm -rf temp
 	rm -rf *.a
 	rm -rf *.log
+	rm -rf *.dot
 	rm -rf $(APP)
