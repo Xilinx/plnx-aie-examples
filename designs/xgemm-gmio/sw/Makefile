@@ -63,7 +63,7 @@ package_sysroot:
 	cd $(PTLNX_DIR) && petalinux-package --sysroot
 
 package: package_sysroot
-	cd $(PTLNX_DIR) && petalinux-package --force --boot --u-boot
+	cd $(PTLNX_DIR) && petalinux-package --force --boot --u-boot --dtb pre-built/linux/images/system-default.dtb
 
 .PHONY: clean
 clean:
