@@ -7,8 +7,8 @@ This repository contains the source code needed to recreate, modify, and extend 
 To build sample AIE designs from source code in this repository, you will need to have the following tools installed and follow the [build instructions](#build-instructions):
 
 - A Linux-based host OS supported by Vitis and PetaLinux
-- [Vitis][1] 2021.2
-- [PetaLinux][2] 2021.2
+- [Vitis][1] 202x.x
+- [PetaLinux][2] 202x.x
 
 [1]: https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vitis.html
 [2]: https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-design-tools.html
@@ -18,7 +18,7 @@ To build sample AIE designs from source code in this repository, you will need t
 Vitis and PetaLinux tools need to be installed before building any design.
 
 ```bash
-source <Vitis_install_path>/Vitis/2021.2/settings64.sh
+source <Vitis_install_path>/Vitis/202x.x/settings64.sh
 source <PetaLinux_install_path>/settings.sh
 
 export BASE_XSA="<Base_XSA_path>"

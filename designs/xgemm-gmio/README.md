@@ -43,7 +43,7 @@ Follow the PetaLinux boot process to boot the Linux on the target. At the Linux 
 The AIE XCLBIN and executable are pre-installed in the `/usr/bin/` directory.
 
 ```
-root@xilinx-vck190-2021_2:~# aie-matrix-multiplication
+root@xilinx-vck190-202x_x:~# aie-matrix-multiplication
 Initializing ADF API...
 [INFO] AIE GMIO Matrix Multiplication
 [INFO] Matrix size(int32): 1200x1200
@@ -70,7 +70,7 @@ XAIEFAL: INFO: Resource group Generic is created.
 [INFO] XGeMM Success!
 [   68.469075] [drm] zocl_xclbin_read_axlf fe3eeecf-1b48-4862-4723-5aba0732fe7b ret: 0
 [  114.412806] zocl-drm axi:zyxclmm_drm: zocl_destroy_client: client exits pid(824)
-root@xilinx-vck190-2021_2:~#
+root@xilinx-vck190-202x_x:~#
 ```
 
 ## Customizing and Rebuilding
@@ -82,7 +82,7 @@ As mentioned earlier, the user can change the number of AIE cores utilized for m
 To rebuild, run make again to recreate Linux boot images. Build artifacts are available in `sw/vck190_linux/images/linux/` directory.
 
 ## References
-* [AI Engine Programming Environment User Guide](https://www.xilinx.com/html_docs/xilinx2021_1/vitis_doc/yii1603912637443.html).
-* [Vivado Design Suite User Guide](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2021_1/ug973-vivado-release-notes-install-license.pdf).
-* [Vitis User Guide](https://www.xilinx.com/html_docs/xilinx2021_1/vitis_doc/acceleration_release_notes.html).
-* [Versal Technical Reference Manual](https://www.xilinx.com/products/silicon-devices/acap/versal-ai-core.html?resultsTablePreSelect=xlnxdocumenttypes:Architecture%20Manuals#documentation).
+* [AI Engine Programming Environment User Guide](https://docs.xilinx.com/r/en-US/ug1076-ai-engine-environment).
+* [Vivado Design Suite User Guide](https://docs.xilinx.com/search/all?filters=Product_custom~%2522Design+Tools%257CVivado+Design+Suite%257C2022.1%2522&content-lang=en-US).
+* [Vitis User Guide](https://docs.xilinx.com/r/en-US/ug1393-vitis-application-acceleration).
+* [Versal Technical Reference Manual](https://docs.xilinx.com/search/all?filters=Product_custom~%2522Silicon+Devices%257CACAP%2522&content-lang=en-US).
