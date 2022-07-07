@@ -4,16 +4,17 @@
 ******************************************************************************/
 
 #include <adf.h>
+#include <aie_api/aie.hpp>
 #include "config.h"
 
 void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 	       output_window_int32 * dataOut, output_window_int32 * result)
 {
-	static unsigned a[NUM_A_ELMNTS_PER_TILE];
-	static unsigned b[NUM_COLS];
-	static unsigned intrmdtResult[WIN_SIZE];
-	static unsigned count = 0;
-	static unsigned currentCol;
+	static int32 a[NUM_A_ELMNTS_PER_TILE];
+	static int32 b[NUM_COLS];
+	static int32 intrmdtResult[WIN_SIZE];
+	static int32 count = 0;
+	static int32 currentCol;
 
 	currentCol = (get_coreid() & 0x7F0000) >> 16;
 
@@ -55,10 +56,17 @@ void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 			window_release(dataOut);
 		}
 
+		/* Vectorized Matrix Multiplication */
 		for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++) {
-			for (unsigned l = 0; l < NUM_COLS; l++)
-				intrmdtResult[count] += a[k * NUM_COLS + l] * b[l];
-			count++;
+			int32 add_result = 0;
+			for (unsigned l = 0; l < NUM_COLS/VECTOR_LENGTH; l++){		
+				aie::vector<int32, VECTOR_LENGTH> va = aie::load_v<VECTOR_LENGTH>(a + ((k * NUM_COLS) + (l * VECTOR_LENGTH)));
+				aie::vector<int32, VECTOR_LENGTH> vb = aie::load_v<VECTOR_LENGTH>(b + (l * VECTOR_LENGTH));
+				aie::accum<acc80,VECTOR_LENGTH> vm=aie::mul(va,vb);
+				aie::vector<int32,VECTOR_LENGTH> result_vector = vm.to_vector<int32>(0);
+				add_result += aie::reduce_add(result_vector);
+			}
+			intrmdtResult[count++] = add_result;
 		}
 
 		if (count == WIN_SIZE) {
