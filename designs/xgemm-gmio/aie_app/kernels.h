@@ -8,18 +8,17 @@
 
 #include <adf.h>
 
-void OneInput(input_window_int32 * dataIn,
-		output_window_int32 * dataOut,
-		output_window_int32 * result);
+void OneInput(input_window<int32>* __restrict dataIn,
+		output_window<int32>* __restrict dataOut,
+		output_window<int32>* __restrict result);
 
-void TwoInputs(input_window_int32 * dataIn,
-		input_window_int32 * bypassResult,
-		output_window_int32 * dataOut,
-		output_window_int32 * result);
+void TwoInputs(input_window<int32>* __restrict dataIn,
+		input_window<int32>* __restrict bypassResult,
+		output_window<int32>* __restrict dataOut,
+		output_window<int32>* __restrict result);
 
-
-void OneOutput(input_window_int32 * dataIn,
-		input_window_int32 * bypassResult,
-		output_window_int32 * result);
-
+void OneOutput(input_window<int32>* __restrict dataIn,
+		input_window<int32>* __restrict bypassResult,
+		output_window<int32>* __restrict result);
+			
 #endif

@@ -7,8 +7,8 @@
 #include <aie_api/aie.hpp>
 #include "config.h"
 
-void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
-	      output_window_int32 * result)
+void OneInput(input_window<int32>* __restrict dataIn, output_window<int32>* __restrict dataOut,
+	      __restrict output_window<int32>* result)
 {
 	static int32 a[NUM_A_ELMNTS_PER_TILE];
 	static int32 b[NUM_COLS];
@@ -20,21 +20,22 @@ void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
 
 	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE / WIN_SIZE; i++) {
 		window_acquire(dataIn);
-		for (unsigned w = 0; w < WIN_SIZE; w++)
-			a[i * WIN_SIZE + w] = window_readincr(dataIn);
+		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++) 
+		chess_prepare_for_pipelining {
+			aie::vector<int32,VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
+			aie::store_unaligned_v(a + (i * WIN_SIZE) + (w * VECTOR_LENGTH), temp); 
+		}
 		window_release(dataIn);
 	}
 
-	for (unsigned i = 0;
-		      i < NUM_A_ELMNTS_PER_TILE *
-		      		(NUM_HW_COLS - currentCol - 1) / WIN_SIZE;
-		      i++)
+	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE * (NUM_HW_COLS - currentCol - 1) / WIN_SIZE; i++)
 	{
-
 		window_acquire(dataOut);
 		window_acquire(dataIn);
-		for (unsigned w = 0; w < WIN_SIZE; w++)
-			window_writeincr(dataOut, window_readincr(dataIn));
+		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++)
+		chess_prepare_for_pipelining { 
+			window_writeincr(dataOut, window_readincr_v<VECTOR_LENGTH>(dataIn));
+		}
 		window_release(dataIn);
 		window_release(dataOut);
 	}
@@ -46,12 +47,14 @@ void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
 	 */
 	for (unsigned i = 0; i < NUM_COLS; i++) {
 		/* read 1 entire column of b */
-		for (unsigned w = 0; w < (NUM_COLS/WIN_SIZE); w++) {
+		for (unsigned w = 0; w < NUM_COLS / WIN_SIZE; w++) {
 			window_acquire(dataOut);
 			window_acquire(dataIn);
-			for (unsigned x = 0; x < WIN_SIZE; x++) {
-				b[w * WIN_SIZE + x] = window_readincr(dataIn);
-				window_writeincr(dataOut, b[w * WIN_SIZE + x]);
+			for (unsigned x = 0; x < WIN_SIZE / VECTOR_LENGTH; x++) 
+			chess_prepare_for_pipelining {
+				aie::vector<int32,VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
+				aie::store_unaligned_v(b + (w * WIN_SIZE) + (x * VECTOR_LENGTH), temp);
+				window_writeincr(dataOut, temp);
 			}
 			window_release(dataIn);
 			window_release(dataOut);
@@ -72,9 +75,10 @@ void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
 
 		if (count == WIN_SIZE) {
 			window_acquire(result);
-			for (unsigned z = 0; z < WIN_SIZE; z++) {
-				window_writeincr(result, intrmdtResult[z]);
-				intrmdtResult[z] = 0;
+			for (unsigned z = 0; z < WIN_SIZE / VECTOR_LENGTH; z++) {
+				window_writeincr(result, aie::load_v<VECTOR_LENGTH>(intrmdtResult + (z * VECTOR_LENGTH)));
+				for(unsigned i=0; i<VECTOR_LENGTH; ++i)
+					intrmdtResult[(z * VECTOR_LENGTH) + i] = 0;
 			}
 			window_release(result);
 			count = 0;
