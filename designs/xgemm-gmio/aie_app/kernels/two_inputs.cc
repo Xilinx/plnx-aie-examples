@@ -7,37 +7,45 @@
 #include <aie_api/aie.hpp>
 #include "config.h"
 
-void TwoInputs(input_window<int32>* __restrict dataIn, input_window<int32>* __restrict bypassResult,
-	       output_window<int32>* __restrict dataOut, output_window<int32>* __restrict result)
+void TwoInputs(input_window<int32>* __restrict aIn, input_window<int32>* __restrict bypassResult, input_stream_acc48 *bIn,
+	       output_window<int32>* __restrict aOut, output_window<int32>* __restrict result, output_stream_acc48 *bOut)
 {
 	static int32 a[NUM_A_ELMNTS_PER_TILE];
 	static int32 b[NUM_COLS];
 	static int32 intrmdtResult[WIN_SIZE];
 	static int32 count = 0;
 	static int32 currentCol;
+	static int32 currentRow;
+	unsigned itr;
 
 	currentCol = (get_coreid() & 0x7F0000) >> 16;
+	currentRow = get_coreid() & 0x00001F;
 
 	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE / WIN_SIZE; i++) {
-		window_acquire(dataIn);
+		window_acquire(aIn);
 		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++)
 		chess_prepare_for_pipelining {
-			aie::vector<int32,VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
+			aie::vector<int32,VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(aIn);
 			aie::store_unaligned_v(a + (i * WIN_SIZE) + (w * VECTOR_LENGTH), temp); 
 		}
-		window_release(dataIn);
+		window_release(aIn);
 	}
 
-	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE * (NUM_HW_COLS - currentCol - 1) / WIN_SIZE; i++)
+	if (currentRow % 2 != 0)
+		itr = NUM_HW_COLS - currentCol - 1;
+	else
+		itr = currentCol;
+
+	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE * itr / WIN_SIZE; i++)
 	{
-		window_acquire(dataOut);
-		window_acquire(dataIn);
+		window_acquire(aOut);
+		window_acquire(aIn);
 		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++)
 		chess_prepare_for_pipelining { 
-			window_writeincr(dataOut, window_readincr_v<VECTOR_LENGTH>(dataIn));
+			window_writeincr(aOut, window_readincr_v<VECTOR_LENGTH>(aIn));
 		}
-		window_release(dataIn);
-		window_release(dataOut);
+		window_release(aIn);
+		window_release(aOut);
 	}
 
 	/*
@@ -47,17 +55,11 @@ void TwoInputs(input_window<int32>* __restrict dataIn, input_window<int32>* __re
 	 */
 	for (unsigned i = 0; i < NUM_COLS; i++) {
 		/* read 1 entire column of b */
-		for (unsigned w = 0; w < (NUM_COLS / WIN_SIZE); w++) {
-			window_acquire(dataOut);
-			window_acquire(dataIn);
-			for (unsigned x = 0; x < WIN_SIZE / VECTOR_LENGTH; x++) 
-			chess_prepare_for_pipelining {
-				aie::vector<int32,VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
-				aie::store_unaligned_v(b + (w * WIN_SIZE) + (x * VECTOR_LENGTH), temp);
-				window_writeincr(dataOut, temp);
-			}
-			window_release(dataIn);
-			window_release(dataOut);
+		for (unsigned i = 0; i < NUM_COLS / VECTOR_LENGTH; i++) {
+			aie::accum<acc48, VECTOR_LENGTH> bAcc = readincr_v<VECTOR_LENGTH>(bIn);
+			writeincr_v8(bOut, bAcc);
+			aie::vector<int32,VECTOR_LENGTH> bVec = bAcc.to_vector<int32>(0);
+			aie::store_unaligned_v(b + (i * VECTOR_LENGTH), bVec);
 		}
 
 		/* Vectorized Matrix Multiplication */
@@ -78,7 +80,12 @@ void TwoInputs(input_window<int32>* __restrict dataIn, input_window<int32>* __re
 			 * copy the results from previous cores to the output
 			 * window
 			 */
-			for (unsigned j = 0; j < currentCol; j++) {
+			if (currentRow % 2 == 0)
+				itr = NUM_HW_COLS - currentCol - 1;
+			else
+				itr = currentCol;
+
+			for (unsigned j = 0; j < itr; j++) {
 				window_acquire(result);
 				window_acquire(bypassResult);
 				for (unsigned k = 0; k < WIN_SIZE / VECTOR_LENGTH; k++)
