@@ -9,16 +9,19 @@
 #include <adf.h>
 
 void OneInput(input_window<int32>* __restrict dataIn,
-		output_window<int32>* __restrict dataOut,
-		output_window<int32>* __restrict result);
+	      output_window<int32>* __restrict aOut,
+	      output_window<int32>* __restrict result,
+	      output_stream_acc48 *bOut);
 
-void TwoInputs(input_window<int32>* __restrict dataIn,
-		input_window<int32>* __restrict bypassResult,
-		output_window<int32>* __restrict dataOut,
-		output_window<int32>* __restrict result);
+void TwoInputs(input_window<int32>* __restrict aIn,
+	       input_window<int32>* __restrict bypassResult,
+	       input_stream_acc48 *bIn,
+	       output_window<int32>* __restrict aOut,
+	       output_window<int32>* __restrict result,
+	       output_stream_acc48 *bOut);
 
-void OneOutput(input_window<int32>* __restrict dataIn,
-		input_window<int32>* __restrict bypassResult,
-		output_window<int32>* __restrict result);
-			
+void OneOutput(input_window<int32>* __restrict aIn,
+	       input_window<int32>* __restrict bypassResult,
+	       input_stream_acc48 *bIn,
+	       output_window<int32>* __restrict result);
 #endif
