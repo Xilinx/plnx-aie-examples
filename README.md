@@ -35,6 +35,9 @@ export PTLNX_BSP="<PetaLinux_BSP_path>"
   - Create a Petalinux project to generate boot images and SDK.
   - Cross-compile PS application.
   - Package application as part of boot images.
+- By default, make compiles the application for Linux plaform and AIE architecture generation.
+- To compile the application for Baremetal platform, pass `OS=baremetal` to make.
+- To compile the application for AIE ML architecture generation, pass `AIEARCH=aie-ml` to make.
  
 ## Directory Structure
 
@@ -42,30 +45,36 @@ export PTLNX_BSP="<PetaLinux_BSP_path>"
 plnx-aie-examples/
 ├── designs
 │   └── xgemm-gmio - GMIO based AIE GeMM application
-│       ├── aie_app
+│       ├── aie
 │       │   ├── kernels
 │       │   │   ├── config.h - user defined parameters
-│       │   │   ├── one_input.cc - first AIE compute kernel within an AIE row that reads data from input stream
-│       │   │   ├── one_output.cc - last AIE compute kernel within an AIE row that sends data to input stream
-│       │   │   └── two_inputs.cc - subsequent compute kernels that circulate input data and output
+│       │   │   ├── one_input_aie.cc - first AIE compute kernel within an AIE row that reads data from input stream
+│       │   │   ├── one_input.cc - AIE-ML version of one_input_aie.cc 
+│       │   │   ├── one_output_aie.cc - last AIE compute kernel within an AIE row that sends data to input stream
+│       │   │   ├── one_output.cc - AIEML version of  one_output_aie.cc
+│       │   │   ├── two_inputs_aie.cc - subsequent compute kernels that circulate input data and output
+│       │   │   └── two_inputs.cc - AIEML version of two_inputs_aie.cc
 │       │   ├── kernels.h - kernels declaration
 │       │   ├── Makefile
-│       │   ├── xgemm.cpp- PS main application
+│       │   ├── xgemm.cpp - PS main application
 │       │   └── xgemm.h - dataflow graph definition
 │       ├── hw
-│       │   ├── system.cfg - defines connections to and from PL to AIE
-│       │   └── Makefile
+│       │   ├── Makefile
+│       │   └── system.cfg - defines connections to and from PL to AIE
 │       ├── images
 │       │   ├── build_flow.png
 │       │   ├── data_movement.png
 │       │   ├── data_slicing.png
 │       │   └── runtime.png
 │       ├── Makefile
-│       ├── ps_app_hw
+│       ├── ps
+│       │   ├── baremetal
+│       │   │   ├── lscript.ld - linker script
+│       │   │   └── Makefile
 │       │   └── linux
 │       │       ├── Makefile
 │       │       └── xrt.ini - XRT configuration file
-│       ├── README
+│       ├── README.md
 │       └── sw
 │           └── Makefile
 ├── LICENSE-BINARIES
@@ -73,5 +82,6 @@ plnx-aie-examples/
 ├── platforms
 │   ├── Makefile
 │   └── platform_create.tcl
+├── README.md
 └── settings.sh
 ```

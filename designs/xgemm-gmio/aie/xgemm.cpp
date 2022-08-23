@@ -3,22 +3,31 @@
 * SPDX-License-Identifier: MIT
 ******************************************************************************/
 
+#if !defined(__AIEBAREMETAL__)
 #include <adf.h>
 #include <fstream>
-#include <unistd.h>
 
 #include "kernels/config.h"
+#endif
+#include <unistd.h>
+
+#if defined(__AIEBAREMETAL__)
+#include "xil_cache.h"
+#endif
+
 #include "xgemm.h"
 
-#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__)
+#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
 	#include "adf/adf_api/XRTConfig.h"
 #endif
 
+#if !defined(__AIEBAREMETAL__)
 using namespace adf;
+#endif
 
 XGeMM my_graph;
 
-#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__)
+#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
 static std::vector<char>
 load_xclbin(xrtDeviceHandle device, const std::string& fnm)
 {
@@ -44,7 +53,6 @@ load_xclbin(xrtDeviceHandle device, const std::string& fnm)
 
 int main(int argc, char ** argv)
 {
-	std::string xclbinFilename;
 	std::cout << "[INFO] AIE GMIO Matrix Multiplication" << std::endl;
 	std::cout << "[INFO] Matrix size(int32): " <<  NUM_ROWS
 		  << "x" <<  NUM_COLS << std::endl;
@@ -52,7 +60,12 @@ int main(int argc, char ** argv)
 	/* Add delay print banner to stdout */
 	sleep(1);
 
-#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__)
+#if defined(__AIEBAREMETAL__)
+	Xil_DCacheDisable();
+#endif
+
+#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
+	std::string xclbinFilename;
 	if(argc != 2)
 		xclbinFilename = "/usr/bin/aie-matrix-multiplication.xclbin";
 	else
@@ -133,15 +146,16 @@ int main(int argc, char ** argv)
 		}
 	}
 
+	/* Enable AIE cores */
+	my_graph.run(1);
+
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
 		my_graph.matrix_ab[i].gm2aie_nb(in_aie_a[i], MAT_A_CHUNK_SIZE);
 		my_graph.matrix_ab[i].gm2aie_nb(in_aie_bt[0], NUM_ELMNTS * sizeof(int));
+	}
 
-		/* Enable AIE cores */
-		if (i == 0)
-			my_graph.run(1);
-
-		my_graph.result[i].aie2gm_nb(out_aie_c[i], MAT_A_CHUNK_SIZE);
+	for (int i = 0; i < NUM_HW_ROWS; i++) {
+		my_graph.result[i].aie2gm(out_aie_c[i], MAT_A_CHUNK_SIZE);
 	}
 
 	/*
@@ -210,7 +224,7 @@ int main(int argc, char ** argv)
 		std::cout << "[INFO] XGeMM Success!" << std::endl;
 	}
 
-#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__)
+#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
 	xrtDeviceClose(dhdl);
 #endif
 

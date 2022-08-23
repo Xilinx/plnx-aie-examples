@@ -5,62 +5,53 @@
 
 APP		:= aie-matrix-multiplication
 
-PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xpfm)
+AIEARCH		?= aie
+TARGET		?= hw
+OS		?= linux
 
-ifeq ($(SYSROOT),)
-all: platform compile aie_xclbin hw sw cross-compile package
+ifeq ($(OS), baremetal)
+all: platform compile hw sw cross-compile package print
+else ifeq ($(SYSROOT),)
+all: platform compile hw sw cross-compile xclbin copy-app-bins package print
 else
-all: platform compile aie_xclbin hw cross-compile
+all: platform compile hw cross-compile xclbin print
 endif
+
+.PHONY: platform compile hw sw cross-compile xclbin package print
 
 platform:
 	$(MAKE) all -C $(PFMS_DIR)
 
-aie_app/libadf.a: $(PFM_XPFM)
-	$(MAKE) all -C aie_app
+compile:
+	$(MAKE) all -C aie AIEARCH=$(AIEARCH)
 
-compile: aie_app/libadf.a
+hw:
+	mkdir -p export/$(OS)
+	$(MAKE) all -C hw OS=$(OS)
 
-ps_app_hw/linux/$(APP).xclbin: compile $(PFM_XPFM)
-	$(MAKE) package -C ps_app_hw/linux
+sw:
+	$(MAKE) all -C sw OS=$(OS)
 
-aie_xclbin: ps_app_hw/linux/$(APP).xclbin
+xclbin:
+	$(MAKE) xclbin -C ps/$(OS)
 
-hw/hw.xsa: aie_app/libadf.a
-	$(MAKE) all -C hw
+cross-compile:
+	$(MAKE) cross-compile -C ps/$(OS) AIEARCH=$(AIEARCH)
 
-hw: hw/hw.xsa
+copy-app-bins:
+	$(MAKE) copy-exe -C ps/$(OS)
+	$(MAKE) copy-xclbin -C ps/$(OS)
 
-sw/$(PTLNX_DIR)/images/linux/image.ub: hw
-	$(MAKE) all -C sw PTLNX_DIR=$(PTLNX_DIR)
+package:
+	$(MAKE) package -C ps/$(OS)
 
-sw: sw/$(PTLNX_DIR)/images/linux/image.ub
-
-aie_app/$(APP): aie_app/xgemm.cpp aie_app/Work/ps/c_rts/aie_control_xrt.cpp
-	$(MAKE) cross-compile -C aie_app
-
-cross-compile: aie_app/$(APP)
-
-package: cross-compile aie_xclbin sw
-	@cp -fv aie_app/$(APP) sw/$(PTLNX_DIR)/project-spec/meta-user/recipes-apps/aie-oob/files
-	@cp -fv ps_app_hw/linux/$(APP).xclbin sw/$(PTLNX_DIR)/project-spec/meta-user/recipes-apps/aie-oob/files
-	$(MAKE) build -C sw PTLNX_DIR=$(PTLNX_DIR)
-	@echo "[INFO] Build artifacts are created in $(PWD)/sw/$(PTLNX_DIR)/images/linux directory"
-
-.PHONY: export
-export:
-	$(MAKE) zip -C ps_app_hw/linux
-	mkdir -p export
-	@cp -fv ps_app_hw/linux/package.zip export/
-	@cp -fv sw/$(PTLNX_DIR)/images/linux/BOOT.BIN export/
-	@cp -fv sw/$(PTLNX_DIR)/images/linux/Image export/
-	@cp -fv sw/$(PTLNX_DIR)/images/linux/rootfs.cpio.gz.u-boot export/
-	@cp -fv sw/$(PTLNX_DIR)/images/linux/system.dtb export/
+print:
+	@echo "[INFO] Build artifacts are created in $(PWD)/export/$(OS) directory"
 
 clean:
 	$(MAKE) clean -C $(PFMS_DIR)
-	$(MAKE) clean -C aie_app
+	$(MAKE) clean -C aie
 	$(MAKE) clean -C hw
-	$(MAKE) clean -C sw PTLNX_DIR=$(PTLNX_DIR)
-	$(MAKE) clean -C ps_app_hw/linux
+	$(MAKE) clean -C sw OS=$(OS)
+	$(MAKE) clean -C ps/$(OS)
 	rm -rf export

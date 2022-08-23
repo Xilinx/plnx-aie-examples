@@ -23,10 +23,10 @@ void OneInput(input_window<int32>* __restrict dataIn, output_window<int32>* __re
 
 	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE / WIN_SIZE; i++) {
 		window_acquire(dataIn);
-		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++) 
+		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++)
 		chess_prepare_for_pipelining {
 			aie::vector<int32,VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
-			aie::store_unaligned_v(a + (i * WIN_SIZE) + (w * VECTOR_LENGTH), temp); 
+			aie::store_unaligned_v(a + (i * WIN_SIZE) + (w * VECTOR_LENGTH), temp);
 		}
 		window_release(dataIn);
 	}
@@ -35,13 +35,13 @@ void OneInput(input_window<int32>* __restrict dataIn, output_window<int32>* __re
 		itr = NUM_HW_COLS - currentCol - 1;
 	else
 		itr = currentCol;
-	
+
 	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE * itr / WIN_SIZE; i++)
 	{
 		window_acquire(aOut);
 		window_acquire(dataIn);
 		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++)
-		chess_prepare_for_pipelining { 
+		chess_prepare_for_pipelining {
 			window_writeincr(aOut, window_readincr_v<VECTOR_LENGTH>(dataIn));
 		}
 		window_release(dataIn);
@@ -70,7 +70,7 @@ void OneInput(input_window<int32>* __restrict dataIn, output_window<int32>* __re
 		/* Vectorized Matrix Multiplication */
 		for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++) {
 			int32 add_result = 0;
-			for (unsigned l = 0; l < NUM_COLS / VECTOR_LENGTH; l++){		
+			for (unsigned l = 0; l < NUM_COLS / VECTOR_LENGTH; l++){
 				aie::vector<int32, VECTOR_LENGTH> va = aie::load_v<VECTOR_LENGTH>(a + ((k * NUM_COLS) + (l * VECTOR_LENGTH)));
 				aie::vector<int32, VECTOR_LENGTH> vb = aie::load_v<VECTOR_LENGTH>(b + (l * VECTOR_LENGTH));
 				aie::accum<acc80,VECTOR_LENGTH> vm=aie::mul(va,vb);
@@ -92,3 +92,4 @@ void OneInput(input_window<int32>* __restrict dataIn, output_window<int32>* __re
 		}
 	}
 }
+

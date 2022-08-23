@@ -3,30 +3,33 @@
 # SPDX-License-Identifier: MIT
 ###############################################################################
 
-VPP			= v++
-TARGET			= hw
+VPP		= v++
+TARGET		= hw
+OS		?= linux
 
-LIBADF			:= ../aie_app/libadf.a
-CONNECTIVITY_SPEC	:= system.cfg
+EXP_DIR		:= ../export
+
+LIBADF		:= ../aie/libadf.a
+CONN_SPEC	:= system.cfg
 
 PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xpfm)
 
-VPP_FLAGS := -t $(TARGET) -f $(PFM_XPFM) --save-temps -g
+VPP_FLAGS 	:= -t $(TARGET) -f $(PFM_XPFM) --save-temps -g
 
 .PHONY: all
-all: $(TARGET).xsa
+all: create
+	
+create: $(TARGET).xsa
+	@cp $< $(EXP_DIR)/$(OS)
 
-$(TARGET).xsa: $(LIBADF) $(CONNECTIVITY_SPEC)
-	$(VPP) -l $(VPP_FLAGS) $(LIBADF) --config $(CONNECTIVITY_SPEC) -o $@
+$(TARGET).xsa: $(LIBADF) $(CONN_SPEC)
+	$(VPP) -l $(VPP_FLAGS) $(LIBADF) --config $(CONN_SPEC) -o $@
 
 clean:
 	rm -rf _x
 	rm -rf .Xil
 	rm -rf .ipcache
-	rm -rf *.ltx
-	rm -rf *.xclbin
-	rm -rf *_summary
+	rm -rf *.pdi
+	rm -rf *.link_summary
 	rm -rf *.xsa
 	rm -rf *.log
-	rm -rf *.jou
-	rm -rf *.info
