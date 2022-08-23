@@ -5,14 +5,15 @@
 
 all: create
 
-$(BASE_PLATFORM):
+create: $(BASE_PLATFORM)/export/base/base.xpfm
+
+$(BASE_PLATFORM)/export/base/base.xpfm: $(BASE_XSA)
 	cp -r $(BASE_XSA) base.xsa
 	xsct platform_create.tcl
 
-create: $(BASE_PLATFORM)
 
 .PHONY: clean
 clean:
 	rm -rf *.xsa
-	rm -rf base_vck190
+	rm -rf base
 	rm -rf .Xil

@@ -25,7 +25,5 @@ if [[ -z "$BASE_XSA" ]]; then
 	return
 fi
 
-export PTLNX_DIR=vck190_linux
 export PFMS_DIR=${PWD}/platforms
-export PTLNX_BSP_DIR=${PFMS_DIR}/${PTLNX_DIR}
-export BASE_PLATFORM=${PFMS_DIR}/base_vck190
+export BASE_PLATFORM=${PFMS_DIR}/base

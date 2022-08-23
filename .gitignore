@@ -35,6 +35,8 @@
 *.bin
 aie-matrix-multiplication
 *.BIN
+*.img
+*.pdi
 
 # Log files and directories
 *.log
@@ -42,6 +44,9 @@ aie-matrix-multiplication
 *.dot
 *.bif
 *_summary
+*.csv
+*.db
+*.json
 
 # ctags file
 tags
@@ -52,5 +57,6 @@ Work
 .ipcache
 _x
 xnwOut
-vck190_linux
-base_vck190
+linux
+baremetal
+base
