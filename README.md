@@ -35,6 +35,9 @@ export PTLNX_BSP="<PetaLinux_BSP_path>"
   - Create a Petalinux project to generate boot images and SDK.
   - Cross-compile PS application.
   - Package application as part of boot images.
+- By default, make compiles the application for Linux plaform and AIE architecture generation.
+- To compile the application for Baremetal platform, pass `OS=baremetal` to make.
+- To compile the application for AIE ML architecture generation, pass `AIEARCH=aie-ml` to make.
  
 ## Directory Structure
 
