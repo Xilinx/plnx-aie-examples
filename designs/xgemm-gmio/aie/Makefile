@@ -13,7 +13,7 @@ PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xp
 all: libadf.a
 
 libadf.a: kernels/*
-	aiecompiler -v --target=$(TARGET) --platform=$(PFM_XPFM) --aiearch=$(AIEARCH) --dataflow xgemm.cpp
+	aiecompiler -v --target=$(TARGET) --platform=$(PFM_XPFM) --aiearch=$(AIEARCH)  xgemm.cpp
 
 .PHONY: clean
 clean:
