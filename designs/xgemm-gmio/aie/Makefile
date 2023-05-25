@@ -5,7 +5,6 @@
 
 APP		:= aie-matrix-multiplication
 
-AIEARCH		?= aie
 TARGET		:= hw
 
 PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xpfm)
@@ -13,7 +12,7 @@ PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xp
 all: libadf.a
 
 libadf.a: kernels/*
-	aiecompiler -v --target=$(TARGET) --platform=$(PFM_XPFM) --aiearch=$(AIEARCH)  xgemm.cpp
+	aiecompiler -v --target=$(TARGET) --platform=$(PFM_XPFM) xgemm.cpp
 
 .PHONY: clean
 clean:
