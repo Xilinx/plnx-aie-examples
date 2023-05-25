@@ -5,7 +5,6 @@
 
 APP		:= aie-matrix-multiplication
 
-AIEARCH		?= aie
 TARGET		?= hw
 OS		?= linux
 
@@ -23,7 +22,7 @@ platform:
 	$(MAKE) all -C $(PFMS_DIR)
 
 compile:
-	$(MAKE) all -C aie AIEARCH=$(AIEARCH)
+	$(MAKE) all -C aie
 
 hw:
 	mkdir -p export/$(OS)
