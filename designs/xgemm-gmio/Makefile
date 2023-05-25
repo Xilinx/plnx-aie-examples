@@ -5,6 +5,7 @@
 
 APP		:= aie-matrix-multiplication
 
+AIEARCH		?= aie
 TARGET		?= hw
 OS		?= linux
 
