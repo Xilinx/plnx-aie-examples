@@ -26,15 +26,15 @@ create: $(PTLNX_DIR)/pre-built/linux/images/BOOT.BIN
 
 $(PTLNX_DIR)/pre-built/linux/images/BOOT.BIN:
 	petalinux-create -t project -s $(PTLNX_BSP) -n $(PTLNX_DIR)
-	petalinux-config -p $(PTLNX_DIR) --get-hw-description=$(TARGET).xsa --silentconfig
+	echo "Y" | petalinux-config -p $(PTLNX_DIR) --get-hw-description=$(TARGET).xsa --silentconfig
 
 build:
-	petalinux-build -p $(PTLNX_DIR)
+	echo "Y" | petalinux-build -p $(PTLNX_DIR)
 
 gen_sdk: linux/images/linux/sdk.sh
 
 linux/images/linux/sdk.sh:
-	petalinux-build -p $(PTLNX_DIR) --sdk
+	echo "Y" | petalinux-build -p $(PTLNX_DIR) --sdk
 	cd $(PTLNX_DIR) && petalinux-package --sysroot
 
 package: linux/images/linux/BOOT.BIN
@@ -45,7 +45,7 @@ linux/images/linux/BOOT.BIN:
 gen_bsp: $(LIB_DIR)/libxil.a
 	
 $(LIB_DIR)/libxil.a: $(TARGET).xsa
-	generate-platform.sh $(PLT_FLAGS) -name base -hw $<
+	bash generate-platform.sh $(PLT_FLAGS) -name base -hw $<
 
 .PHONY: clean
 clean:
