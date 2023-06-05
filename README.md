@@ -85,3 +85,9 @@ plnx-aie-examples/
 ├── README.md
 └── settings.sh
 ```
+
+### Build Vek280
+  - Vek280
+  ```
+  source ./build_vek280_es1_2023_1.sh
+  ```
