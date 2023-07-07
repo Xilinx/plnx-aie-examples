@@ -3,7 +3,7 @@
 #Fix build fail cause by HOME or tmp disk not enough issue
 source ./home_tmp_set.sh
 #Fix vek280 part not found in 2023.1 issue
-source ./enable_beta_device.sh
+source ./enable_beta_part.sh
 
 export XILINXD_LICENSE_FILE=2100@aiengine-eng
 
