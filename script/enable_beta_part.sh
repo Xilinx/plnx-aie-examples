@@ -1,9 +1,13 @@
 #!/bin/bash
-filename="$HOME/.Xilinx/Vivado/Vivado_init.tcl"
+
+xilfolder="$HOME/.Xilinx/Vivado/"
+filename="$xilfolder/Vivado_init.tcl"
+echo $filename
 searchPattern="enable_beta_device *"
 
 # Check if the file exists
 if [ ! -f "$filename" ]; then
+		mkdir -p $xilfolder
     # File does not exist, create it and add the pattern
     touch "$filename"
     echo "Created file: $filename"
