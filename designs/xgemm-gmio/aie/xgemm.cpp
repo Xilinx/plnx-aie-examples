@@ -69,7 +69,7 @@ int main(int argc, char ** argv)
 	if(argc != 2)
 		xclbinFilename = "/usr/bin/aie-matrix-multiplication.xclbin";
 	else
-		std::string xclbinFilename(argv[1]);
+		xclbinFilename = argv[1];
 
 	auto dhdl = xrtDeviceOpen(0);
 	if (!dhdl) {
