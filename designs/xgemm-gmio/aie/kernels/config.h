@@ -17,8 +17,8 @@
 #else
 #define NUM_HW_COLS		38
 #define NUM_HW_ROWS		8
-#define MAT_SIZE		912
-#define WIN_SIZE		912
+#define MAT_SIZE		608
+#define WIN_SIZE		608
 #endif
 
 #define NUM_COLS		MAT_SIZE
