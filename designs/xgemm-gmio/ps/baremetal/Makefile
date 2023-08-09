@@ -16,7 +16,7 @@ endif
 
 VPP		= v++
 CC		:= aarch64-none-elf-gcc
-CC_FLAGS	:= -g -c -DPS_ENABLE_AIE -D__PS_BARE_METAL__ -D__AIEBAREMETAL__ -D__AIEARCH__=$(AIEGEN) -std=c++17
+CC_FLAGS	:= -g -c -DPS_ENABLE_AIE -D__PS_BARE_METAL__ -D__AIEBAREMETAL__ -D__AIE_ARCH__=$(AIEGEN) -std=c++17
 
 HW_DIR		= ../../hw
 AIE_DIR		= ../../aie
