@@ -9,7 +9,9 @@
 
 using namespace adf;
 
-#if (__AIEARCH__ == AIE)
+// This macro only applicable for 2023.2 & 2023.1 deprecated,
+// Also 2022.2 and early should use __AIEARCH__ in all Instance.
+#if (__AIE_ARCH__ == AIE)
 class XGeMM : public adf::graph {
 	private:
   		kernel krnl[NUM_HW_ROWS][NUM_HW_COLS];

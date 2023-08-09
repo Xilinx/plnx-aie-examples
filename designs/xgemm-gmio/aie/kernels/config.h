@@ -9,7 +9,7 @@
 #define AIE			10
 #define AIEML			20
 
-#if (__AIEARCH__ == AIE)
+#if (__AIE_ARCH__ == AIE)
 #define NUM_HW_COLS		50
 #define NUM_HW_ROWS		8
 #define MAT_SIZE		1200
