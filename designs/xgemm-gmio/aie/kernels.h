@@ -9,7 +9,7 @@
 #include <adf.h>
 #include "kernels/config.h"
 
-#if (__AIEARCH__ == AIE)
+#if (__AIE_ARCH__ == AIE)
 void OneInput(input_window<int32>* __restrict dataIn,
 	      output_window<int32>* __restrict aOut,
 	      output_window<int32>* __restrict result,
