@@ -60,6 +60,7 @@ void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 			for (unsigned x = 0; x < (WIN_SIZE/VECTOR_LENGTH); x++) 
 			chess_prepare_for_pipelining{	
 				aie::store_unaligned_v(b + (w* WIN_SIZE) + (x * VECTOR_LENGTH), window_readincr_v<VECTOR_LENGTH>(dataIn));
+				window_writeincr(dataOut, aie::load_v<VECTOR_LENGTH>(b + (w* WIN_SIZE) + (x * VECTOR_LENGTH)));
 			}
 			window_release(dataIn);
 			window_release(dataOut);
