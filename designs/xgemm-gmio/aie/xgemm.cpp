@@ -16,6 +16,7 @@
 #endif
 
 #include "xgemm.h"
+#include <chrono>
 
 #if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
 	#include "adf/adf_api/XRTConfig.h"
@@ -90,7 +91,8 @@ int main(int argc, char ** argv)
 
 	/* Configure AIE */
 	my_graph.init();
-
+	
+	auto startTime = std::chrono::high_resolution_clock::now();
 	int ret = 0, pass = 0;
 	int **in_aie_a, **in_aie_bt, **out_aie_c;
 	int **input_a, **input_b, **result_aie, **result_apu;
@@ -165,7 +167,9 @@ int main(int argc, char ** argv)
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
 		my_graph.result[i].wait();
 	}
-	std::cout << "[INFO] AIE cores are done executing" << std::endl;
+	auto endTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+	std::cout << "[INFO] AIE cores are done executing>>>>" << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
 
 	/* Z-ordering */
 	for (int i = 0; i < NUM_COLS / (WIN_SIZE / NUM_ROWS_PER_TILE); i++) {
