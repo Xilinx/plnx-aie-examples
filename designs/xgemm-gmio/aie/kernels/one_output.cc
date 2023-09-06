@@ -68,6 +68,12 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 			// count++;
 		}
 
+		// for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++) {
+		// 	for (unsigned l = 0; l < NUM_COLS; l++)
+		// 		intrmdtResult[count] += a[k * NUM_COLS + l] * b[l];
+		// 	count++;
+		// }
+
 		if (count == WIN_SIZE) {
 			/*
 			 * copy the results from previous cores to the output
@@ -87,7 +93,7 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 
 			window_acquire(result);
 			for (unsigned z = 0; z < WIN_SIZE / VECTOR_LENGTH; z++)
-			 chess_prepare_for_pipelining{
+			{
 				window_writeincr(result, aie::load_v<VECTOR_LENGTH>(intrmdtResult + (z * VECTOR_LENGTH)));
 				for (unsigned i = 0; i < VECTOR_LENGTH; ++i)
 					intrmdtResult[(z * VECTOR_LENGTH) + i] = 0;

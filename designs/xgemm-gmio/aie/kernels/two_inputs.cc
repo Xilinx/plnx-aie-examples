@@ -98,7 +98,6 @@ void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 
 			window_acquire(result);
 			for (unsigned z = 0; z < WIN_SIZE / VECTOR_LENGTH; z++) 
-			
 			{
 				window_writeincr(result, aie::load_v<VECTOR_LENGTH>(intrmdtResult + (z*VECTOR_LENGTH)));	
 				for (unsigned i = 0; i < VECTOR_LENGTH; ++i) 

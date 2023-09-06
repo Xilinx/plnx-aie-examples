@@ -61,13 +61,17 @@ void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
 			window_acquire(dataIn);
 			for (unsigned x = 0; x < WIN_SIZE / VECTOR_LENGTH; x++) 
 			chess_prepare_for_pipelining{
-				window_writeincr(dataOut, window_readincr_v<VECTOR_LENGTH>(dataIn));
+				aie::vector<int32, VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
+				aie::store_unaligned_v<VECTOR_LENGTH>(b + (w*WIN_SIZE) + (x*VECTOR_LENGTH), temp);
+				window_writeincr(dataOut, aie::load_v<VECTOR_LENGTH>(b + (w*WIN_SIZE) + (x*VECTOR_LENGTH)));
+				//b[w * WIN_SIZE + x] = window_readincr(dataIn);
+				//window_writeincr(dataOut, b[w * WIN_SIZE + x]);
 			}
 			window_release(dataIn);
 			window_release(dataOut);
 		}
 
-		// at this point we have a full column of B ready to be hammered by our rows
+		//at this point we have a full column of B ready to be hammered by our rows
 		for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++)
 		{
 			int32 add_result = 0;
