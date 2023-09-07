@@ -76,7 +76,7 @@ void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
 		{
 			int32 add_result = 0;
 			//each row has "NUM_COLS" number of elements
-			for (unsigned l = 0; l < NUM_COLS / VECTOR_LENGTH; l++){
+			for (unsigned l = 0; l < NUM_COLS / VECTOR_LENGTH; l++) chess_prepare_for_pipelining{
 				aie::vector<int32, VECTOR_LENGTH> va = aie::load_v<VECTOR_LENGTH>(a + (k*NUM_COLS) + (l* VECTOR_LENGTH));
 				aie::vector<int32, VECTOR_LENGTH> vb = aie::load_v<VECTOR_LENGTH>(b + (l*VECTOR_LENGTH)); // cuz we just be dealin with one column of b at a time 
 				aie::accum<acc64, VECTOR_LENGTH> vres = aie::mul(va, vb);
@@ -94,7 +94,7 @@ void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
 
 		if (count == WIN_SIZE) {
 			window_acquire(result);
-			for (unsigned z = 0; z < WIN_SIZE/VECTOR_LENGTH; z++) {
+			for (unsigned z = 0; z < WIN_SIZE/VECTOR_LENGTH; z++) chess_prepare_for_pipelining{
 				window_writeincr(result, aie::load_v<VECTOR_LENGTH>(intrmdtResult + (z * VECTOR_LENGTH)));
 				//reset 
 				for (unsigned i = 0; i < VECTOR_LENGTH; ++i)
