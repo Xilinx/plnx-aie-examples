@@ -25,7 +25,7 @@
 #define NUM_ROWS		MAT_SIZE
 #define WIN_SIZE_BYTES		(WIN_SIZE * sizeof(int))
 
-#define VECTOR_LENGTH		8
+#define VECTOR_LENGTH		16
 
 #define NUM_ROWS_PER_HW_ROW	(NUM_ROWS / NUM_HW_ROWS)
 #define NUM_ROWS_PER_TILE	(NUM_ROWS_PER_HW_ROW / NUM_HW_COLS)
