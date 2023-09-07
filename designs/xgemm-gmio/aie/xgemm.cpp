@@ -92,7 +92,6 @@ int main(int argc, char ** argv)
 	/* Configure AIE */
 	my_graph.init();
 	
-	auto startTime = std::chrono::high_resolution_clock::now();
 	int ret = 0, pass = 0;
 	int **in_aie_a, **in_aie_bt, **out_aie_c;
 	int **input_a, **input_b, **result_aie, **result_apu;
@@ -150,7 +149,8 @@ int main(int argc, char ** argv)
 
 	/* Enable AIE cores */
 	my_graph.run(1);
-
+	auto startTime = std::chrono::high_resolution_clock::now();
+	
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
 		my_graph.matrix_ab[i].gm2aie_nb(in_aie_a[i], MAT_A_CHUNK_SIZE);
 		my_graph.matrix_ab[i].gm2aie_nb(in_aie_bt[0], NUM_ELMNTS * sizeof(int));
