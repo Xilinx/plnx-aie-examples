@@ -20,6 +20,7 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 
 	currentCol = (get_coreid() & 0x7F0000) >> 16;
 
+int time1=get_cycles();
 	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE / WIN_SIZE; i++) {
 		window_acquire(dataIn);
 		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++)
@@ -30,6 +31,10 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 		//a[i * WIN_SIZE + w] = window_readincr(dataIn);
 		window_release(dataIn);
 	}
+int time2=get_cycles();
+int time = time2 - time1;
+dataTransfercc += time;
+printf("one_output::[V]Reading from dataIn into matrix A took %d \n", time);
 
 	/*
 	 * read one column of b, pass the same to the next core,
@@ -37,6 +42,7 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 	 * finally output the result
 	 */
 	for (unsigned i = 0; i < NUM_COLS; i++) {
+		time1=get_cycles();
 		/* read 1 entire column of b */
 		for (unsigned w = 0; w < (NUM_COLS / WIN_SIZE); w++) {
 			//granularize each window operation into several vectorized operations 
@@ -50,7 +56,12 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 			// 	b[w * WIN_SIZE + x] = window_readincr(dataIn);
 			window_release(dataIn);
 		}
-
+		time2=get_cycles();
+		time = time2 - time1;
+		dataTransfercc += time;
+		printf("one_output::[V]Reading from dataIn into dataOut took %d \n", time);
+		
+		time1=get_cycles();
 		for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++) {
 			int32 add_result = 0;
 			for(unsigned l = 0; l < NUM_COLS / VECTOR_LENGTH; l++)
@@ -67,7 +78,10 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 			// 	intrmdtResult[count] += a[k * NUM_COLS + l] * b[l];
 			// count++;
 		}
-
+		time2=get_cycles();
+		time = time2 - time1;
+		computecc += time;
+		printf("one_input::[V]aie::mul Compute took %d \n", time);
 		// for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++) {
 		// 	for (unsigned l = 0; l < NUM_COLS; l++)
 		// 		intrmdtResult[count] += a[k * NUM_COLS + l] * b[l];
@@ -79,6 +93,7 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 			 * copy the results from previous cores to the output
 			 * window
 			 */
+			time1=get_cycles();
 			for (unsigned j = 0; j < currentCol; j++) {
 				window_acquire(result);
 				window_acquire(bypassResult);
@@ -100,6 +115,10 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 			}
 			window_release(result);
 			count = 0;
+			time2=get_cycles();
+			time = time2 - time1;
+			dataTransfercc += time;
+			printf("one_output::[V]Resykt write took %d \n", time);
 		}
 	}
 }
