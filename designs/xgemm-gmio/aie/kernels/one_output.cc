@@ -21,7 +21,7 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 	currentCol = (get_coreid() & 0x7F0000) >> 16;
 	
 	#ifdef PERF_PROF
-		int time1=get_cycles();
+		int time1 = get_cycles();
 	#endif
 
 	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE / WIN_SIZE; i++) {
@@ -119,9 +119,9 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 			}
 			window_release(result);
 			count = 0;
-			
+
 			#ifdef PERF_PROF
-				time2=get_cycles();
+				time2 = get_cycles();
 				time = time2 - time1;
 				printf("one_output::[V]Result write took %d \n", time);
 			#endif
