@@ -95,11 +95,9 @@ void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
 			time1 = get_cycles();
 		#endif
 
-		//at this point we have a full column of B ready to be hammered by our rows
 		for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++)
 		{
 			int32 add_result = 0;
-			//each row has "NUM_COLS" number of elements
 			for (unsigned l = 0; l < NUM_COLS / VECTOR_LENGTH; l++) chess_prepare_for_pipelining{
 				aie::vector<int32, VECTOR_LENGTH> va = aie::load_v<VECTOR_LENGTH>(a + (k*NUM_COLS) + (l* VECTOR_LENGTH));
 				aie::vector<int32, VECTOR_LENGTH> vb = aie::load_v<VECTOR_LENGTH>(b + (l*VECTOR_LENGTH)); // cuz we just be dealin with one column of b at a time 

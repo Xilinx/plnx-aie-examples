@@ -9,8 +9,8 @@
 #include <aie_api/utils.hpp>
 #include "config.h"
 
-void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__restrict bypassResult,
-	       output_window_int32 *__restrict result)
+void OneOutput(input_window_int32* dataIn, input_window_int32* bypassResult,
+	       output_window_int32* result)
 {
 	static int32 a[NUM_A_ELMNTS_PER_TILE];
 	static int32 b[NUM_COLS];
@@ -52,7 +52,6 @@ void OneOutput(input_window_int32 *__restrict dataIn, input_window_int32 *__rest
 
 		/* read 1 entire column of b */
 		for (unsigned w = 0; w < (NUM_COLS / WIN_SIZE); w++) {
-			//granularize each window operation into several vectorized operations 
 			window_acquire(dataIn);
 			for (unsigned l = 0; l < WIN_SIZE/VECTOR_LENGTH; l++)
 			chess_prepare_for_pipelining{
