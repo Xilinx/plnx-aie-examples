@@ -54,7 +54,6 @@ void OneInput(input_window_int32 * dataIn, output_window_int32 * dataOut,
 		chess_prepare_for_pipelining{
 			window_writeincr(dataOut, window_readincr_v<VECTOR_LENGTH>(dataIn));
 		}
-			//window_writeincr(dataOut, window_readincr(dataIn));
 		window_release(dataIn);
 		window_release(dataOut);
 	}

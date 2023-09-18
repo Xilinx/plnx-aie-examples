@@ -8,7 +8,7 @@
 
 #define AIE			10
 #define AIEML			20
-#define PERF_PROF
+//#define PERF_PROF
 
 #if (__AIE_ARCH__ == AIE)
 #define NUM_HW_COLS		50
@@ -37,9 +37,4 @@
 #define MAT_A_CHUNK		(NUM_ROWS_PER_HW_ROW * NUM_COLS)
 #define MAT_A_CHUNK_SIZE	(MAT_A_CHUNK * sizeof(int))
 
-
-#ifdef PERF_PROF
-    extern long long computecc;
-    extern long long dataTransfercc;
-#endif
 #endif
