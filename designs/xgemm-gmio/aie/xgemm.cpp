@@ -54,9 +54,6 @@ load_xclbin(xrtDeviceHandle device, const std::string& fnm)
 
 int main(int argc, char ** argv)
 {
-	long long computecc;
-	long long dataTransfercc;
-
 	std::cout << "[INFO] AIE GMIO Matrix Multiplication" << std::endl;
 	std::cout << "[INFO] Matrix size(int32): " <<  NUM_ROWS
 		  << "x" <<  NUM_COLS << std::endl;
@@ -209,8 +206,6 @@ int main(int argc, char ** argv)
 	duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - aie_core_start);
 
 	std::cout << "[INFO] AIE cores are done executing>>>>" << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
-	std::cout <<" [INFO] Total time spent moving data "<< dataTransfercc <<std::endl;
-	std::cout <<" [INFO] Total time Computing data "<< computecc <<std::endl;
 	#endif
 
 	/* Z-ordering */
