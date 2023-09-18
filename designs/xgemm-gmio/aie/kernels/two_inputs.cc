@@ -17,10 +17,13 @@ void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 	static int32 b[NUM_COLS];
 	static int32 intrmdtResult[WIN_SIZE];
 	static int32 count = 0;
-	static int32 currentCol;
+	static int32 currentCol;	
 
 	currentCol = (get_coreid() & 0x7F0000) >> 16;
-int time1=get_cycles();
+	#ifdef PERF_PROF
+		int time1=get_cycles();
+	#endif
+
 	for (unsigned i = 0; i < NUM_A_ELMNTS_PER_TILE / WIN_SIZE; i++) {
 		window_acquire(dataIn);
 		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++)
@@ -28,15 +31,17 @@ int time1=get_cycles();
 			aie::vector<int32, VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
 			aie::store_unaligned_v<VECTOR_LENGTH>(a + (i*WIN_SIZE) + (w*VECTOR_LENGTH), temp);
 		}
-		//a[i * WIN_SIZE + w] = window_readincr(dataIn);
 		window_release(dataIn);
 	}
-int time2=get_cycles();
-int time = time2 - time1;
-dataTransfercc += time;
-printf("two_inputs::[V]Reading from dataIn into matrix A took %d \n", time);
+	
+	#ifdef PERF_PROF
+		int time2=get_cycles();
+		int time = time2 - time1;
+		printf("two_inputs::[V]Reading from dataIn into matrix A took %d \n", time);
 
-time1=get_cycles();
+		time1=get_cycles();
+	#endif
+
 	for (unsigned i = 0;
 		      i < NUM_A_ELMNTS_PER_TILE *
 		      		(NUM_HW_COLS - currentCol - 1) / WIN_SIZE;
@@ -51,11 +56,13 @@ time1=get_cycles();
 		window_release(dataIn);
 		window_release(dataOut);
 	}
-	time2=get_cycles();
-	time = time2 - time1;
-	dataTransfercc += time;
-	printf("two_inputs::[V]Reading from dataIn into dataOut took %d \n", time);
-	
+
+	#ifdef PERF_PROF
+		time2=get_cycles();
+		time = time2 - time1;
+		printf("two_inputs::[V]Reading from dataIn into dataOut took %d \n", time);
+	#endif 
+
 	/*
 	 * read one column of b, pass the same to the next core,
 	 * compute matrix multiplication of 'a' rows x 'b' col and
@@ -63,7 +70,10 @@ time1=get_cycles();
 	 */
 	for (unsigned i = 0; i < NUM_COLS; i++) {
 		/* read 1 entire column of b */
-		time1=get_cycles();
+		#ifdef PERF_PROF
+			time1=get_cycles();
+		#endif 
+
 		for (unsigned w = 0; w < (NUM_COLS / WIN_SIZE); w++) {
 			window_acquire(dataOut);
 			window_acquire(dataIn);
@@ -75,12 +85,15 @@ time1=get_cycles();
 			window_release(dataIn);
 			window_release(dataOut);
 		}
-		time2=get_cycles();
-		time = time2 - time1;
-		dataTransfercc += time;
-		printf("two_inputs::[V]Reading from dataIn into b; b into dataOut took %d \n", time);
 
-		time1=get_cycles();
+		#ifdef PERF_PROF
+			time2=get_cycles();
+			time = time2 - time1;
+			printf("two_inputs::[V]Reading from dataIn into b; b into dataOut took %d \n", time);
+
+			time1=get_cycles();
+		#endif 
+
 		for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++) {
 			int32 add_result = 0;
 			for (unsigned l = 0; l < NUM_COLS / VECTOR_LENGTH; l++)
@@ -93,17 +106,22 @@ time1=get_cycles();
 			}
 				intrmdtResult[count++] = add_result;
 		}
-		time2=get_cycles();
-		time = time2 - time1;
-		computecc += time;
-		printf("two_inputs::[V]aie::mul Compute took %d \n", time);
 
-		if (count == WIN_SIZE) { // dont worry, we will reach this as WIN_SIZE is the same as MAT_SIZE (NO OF COLS / ROWS) (WIN)SIZ is a multiple of no of elements
+		#ifdef PERF_PROF
+			time2=get_cycles();
+			time = time2 - time1;
+			printf("two_inputs::[V]aie::mul Compute took %d \n", time);
+		#endif 
+
+		if (count == WIN_SIZE) {
 			/*
 			 * copy the results from previous cores to the output
 			 * window
 			 */
-			time1=get_cycles();
+			#ifdef PERF_PROF
+				time1=get_cycles();
+			#endif 
+
 			for (unsigned j = 0; j < currentCol; j++) {
 				window_acquire(result);
 				window_acquire(bypassResult);
@@ -125,10 +143,12 @@ time1=get_cycles();
 			}
 			window_release(result);
 			count = 0;
-			time2=get_cycles();
-			time = time2 - time1;
-			dataTransfercc += time;
-			printf("two_inputs::[V]Resykt write took %d \n", time);
+
+			#ifdef PERF_PROF
+				time2=get_cycles();
+				time = time2 - time1;
+				printf("two_inputs::[V]Result write took %d \n", time);
+			#endif 
 		}
 	}
 }
