@@ -68,7 +68,10 @@ int main(int argc, char ** argv)
 	Xil_DCacheDisable();
 #endif
 
+#ifdef PERF_PROF
 	auto load_xclbin_time = std::chrono::high_resolution_clock::now();
+#endif
+
 #if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
 	std::string xclbinFilename;
 	if(argc != 2)
@@ -91,19 +94,26 @@ int main(int argc, char ** argv)
 	auto top = reinterpret_cast<const axlf*>(xclbin.data());
 	adf::registerXRT(dhdl, top->m_header.uuid);
 #endif
+
+#ifdef PERF_PROF
 	auto endTime = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - load_xclbin_time);
 	std::cout << "[INFO] XCLBIN download complete"  << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
+#endif
 
-
+#ifdef PERF_PROF
 	auto aie_config_time = std::chrono::high_resolution_clock::now();
+#endif
+
 	/* Configure AIE */
 	my_graph.init();
 	
+#ifdef PERF_PROF
 	endTime = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - aie_config_time);
 	std::cout << "[INFO] AIE INIT done!"  << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
-	
+#endif
+
 	int ret = 0, pass = 0;
 	int **in_aie_a, **in_aie_bt, **out_aie_c;
 	int **input_a, **input_b, **result_aie, **result_apu;
@@ -160,10 +170,15 @@ int main(int argc, char ** argv)
 	}
 
 	/* Enable AIE cores */
+	#ifdef PERF_PROF
 	auto aie_core_start = std::chrono::high_resolution_clock::now();
+	#endif
+
 	my_graph.run(1);
+	#ifdef PERF_PROF
 	auto datamov_startTime = std::chrono::high_resolution_clock::now();
-	
+	#endif
+
 	//issuing blocking calls to see how much time is spent only copying
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
 		my_graph.matrix_ab[i].gm2aie_nb(in_aie_a[i], MAT_A_CHUNK_SIZE);
@@ -173,9 +188,13 @@ int main(int argc, char ** argv)
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
 		my_graph.result[i].aie2gm(out_aie_c[i], MAT_A_CHUNK_SIZE);
 	}
+
+	#ifdef PERF_PROF
 	endTime = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - datamov_startTime);
 	std::cout << "[INFO] GM2AIE and AIE2GM data movement done!"  << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
+	#endif
+
 	/*
 	 * Assuming data from gmin are processed by the graph and output to
 	 * gmout
@@ -183,11 +202,17 @@ int main(int argc, char ** argv)
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
 		my_graph.result[i].wait();
 	}
+
+	
+	#ifdef PERF_PROF
 	endTime = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - aie_core_start);
+
 	std::cout << "[INFO] AIE cores are done executing>>>>" << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
 	std::cout <<" [INFO] Total time spent moving data "<< dataTransfercc <<std::endl;
 	std::cout <<" [INFO] Total time Computing data "<< computecc <<std::endl;
+	#endif
+
 	/* Z-ordering */
 	for (int i = 0; i < NUM_COLS / (WIN_SIZE / NUM_ROWS_PER_TILE); i++) {
 		for (int j = 0; j < NUM_HW_ROWS; j++) {
