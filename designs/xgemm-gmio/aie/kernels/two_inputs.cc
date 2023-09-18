@@ -38,7 +38,6 @@ void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 		int time2=get_cycles();
 		int time = time2 - time1;
 		printf("two_inputs::[V]Reading from dataIn into matrix A took %d \n", time);
-
 		time1=get_cycles();
 	#endif
 
@@ -90,7 +89,6 @@ void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 			time2=get_cycles();
 			time = time2 - time1;
 			printf("two_inputs::[V]Reading from dataIn into b; b into dataOut took %d \n", time);
-
 			time1=get_cycles();
 		#endif 
 

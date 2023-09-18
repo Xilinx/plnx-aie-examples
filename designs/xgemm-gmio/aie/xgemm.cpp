@@ -90,12 +90,13 @@ int main(int argc, char ** argv)
 
 	auto top = reinterpret_cast<const axlf*>(xclbin.data());
 	adf::registerXRT(dhdl, top->m_header.uuid);
+	std::cout << "[INFO] XCLBIN download complete" << std::endl;
 #endif
 
 #ifdef PERF_PROF
 	auto endTime = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - load_xclbin_time);
-	std::cout << "[INFO] XCLBIN download complete"  << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
+	std::cout << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
 #endif
 
 #ifdef PERF_PROF
@@ -199,13 +200,13 @@ int main(int argc, char ** argv)
 	for (int i = 0; i < NUM_HW_ROWS; i++) {
 		my_graph.result[i].wait();
 	}
-
+	std::cout << "[INFO] AIE cores are done executing" << std::endl;
 	
 	#ifdef PERF_PROF
 	endTime = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - aie_core_start);
 
-	std::cout << "[INFO] AIE cores are done executing>>>>" << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
+	std::cout << "execute time: " << duration.count() / 1000.0 << "ms" << std::endl;
 	#endif
 
 	/* Z-ordering */
