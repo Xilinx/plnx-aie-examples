@@ -27,19 +27,19 @@ void OneOutput(input_window<int32>* __restrict aIn,
 	       input_stream_acc48 *bIn,
 	       output_window<int32>* __restrict result);
 #else
-void OneInput(input_window_int32 * dataIn,
-		output_window_int32 * dataOut,
-		output_window_int32 * result);
+void OneInput(input_window_uint32 * dataIn,
+		output_window_uint32 * dataOut,
+		output_window_uint32 * result);
 
-void TwoInputs(input_window_int32 * dataIn,
-		input_window_int32 * bypassResult,
-		output_window_int32 * dataOut,
-		output_window_int32 * result);
+void TwoInputs(input_window_uint32 * dataIn,
+		input_window_uint32 * bypassResult,
+		output_window_uint32 * dataOut,
+		output_window_uint32 * result);
 
 
-void OneOutput(input_window_int32 * dataIn,
-		input_window_int32 * bypassResult,
-		output_window_int32 * result);
+void OneOutput(input_window_uint32 * dataIn,
+		input_window_uint32 * bypassResult,
+		output_window_uint32 * result);
 #endif
 
 #endif

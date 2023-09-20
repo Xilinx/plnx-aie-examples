@@ -16,7 +16,9 @@
 #endif
 
 #include "xgemm.h"
+#ifdef PERF_PROF
 #include <chrono>
+#endif
 
 #if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
 	#include "adf/adf_api/XRTConfig.h"
@@ -126,6 +128,8 @@ int main(int argc, char ** argv)
 	in_aie_a = (int **) GMIO::malloc(NUM_HW_ROWS * sizeof(int *) + NUM_HW_ROWS * MAT_A_CHUNK_SIZE);
 	out_aie_c = (int **) GMIO::malloc(NUM_HW_ROWS * sizeof(int *) + NUM_HW_ROWS * MAT_A_CHUNK_SIZE);
 
+	assert(WIN_SIZE % VECTOR_LENGTH == 0);
+	
 	/* Allocate memory for sanity check */
 	for (int i = 0; i < NUM_ROWS; i++) {
 		input_a[i] = (int *)(input_a + NUM_ROWS) + i * NUM_COLS;
