@@ -8,7 +8,6 @@
 
 #define AIE			10
 #define AIEML			20
-//#define PERF_PROF
 
 #if (__AIE_ARCH__ == AIE)
 #define NUM_HW_COLS		50
