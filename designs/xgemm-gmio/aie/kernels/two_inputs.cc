@@ -10,14 +10,14 @@
 
 #include "config.h"
 
-void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
-	       output_window_int32 * dataOut, output_window_int32 * result)
+void TwoInputs(input_window_uint32 * dataIn, input_window_uint32 * bypassResult,
+	       output_window_uint32 * dataOut, output_window_uint32 * result)
 {
-	static int32 a[NUM_A_ELMNTS_PER_TILE];
-	static int32 b[NUM_COLS];
-	static int32 intrmdtResult[WIN_SIZE];
-	static int32 count = 0;
-	static int32 currentCol;	
+	static uint32_t a[NUM_A_ELMNTS_PER_TILE];
+	static uint32_t b[NUM_COLS];
+	static uint32_t intrmdtResult[WIN_SIZE];
+	static uint32_t count = 0;
+	static uint32_t currentCol;	
 
 	currentCol = (get_coreid() & 0x7F0000) >> 16;
 	#ifdef PERF_PROF
@@ -28,7 +28,7 @@ void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 		window_acquire(dataIn);
 		for (unsigned w = 0; w < WIN_SIZE / VECTOR_LENGTH; w++)
 		chess_prepare_for_pipelining{
-			aie::vector<int32, VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
+			aie::vector<uint32_t, VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
 			aie::store_unaligned_v<VECTOR_LENGTH>(a + (i*WIN_SIZE) + (w*VECTOR_LENGTH), temp);
 		}
 		window_release(dataIn);
@@ -93,13 +93,13 @@ void TwoInputs(input_window_int32 * dataIn, input_window_int32 * bypassResult,
 		#endif 
 
 		for (unsigned k = 0; k < NUM_ROWS_PER_TILE; k++) {
-			int32 add_result = 0;
+			uint32_t add_result = 0;
 			for (unsigned l = 0; l < NUM_COLS / VECTOR_LENGTH; l++)
 			chess_prepare_for_pipelining{
-				aie::vector<int32, VECTOR_LENGTH> va = aie::load_v<VECTOR_LENGTH>(a + (k*NUM_COLS) + (l*VECTOR_LENGTH));
-				aie::vector<int32, VECTOR_LENGTH> vb = aie::load_v<VECTOR_LENGTH>(b + (l*VECTOR_LENGTH));
+				aie::vector<uint32_t, VECTOR_LENGTH> va = aie::load_v<VECTOR_LENGTH>(a + (k*NUM_COLS) + (l*VECTOR_LENGTH));
+				aie::vector<uint32_t, VECTOR_LENGTH> vb = aie::load_v<VECTOR_LENGTH>(b + (l*VECTOR_LENGTH));
 				aie::accum<acc64, VECTOR_LENGTH> vm = aie::mul(va, vb);
-				aie::vector<int32, VECTOR_LENGTH> result_vector = vm.to_vector<int32>(0);
+				aie::vector<uint32_t, VECTOR_LENGTH> result_vector = vm.to_vector<uint32_t>(0);
 				add_result += aie::reduce_add(result_vector);
 			}
 				intrmdtResult[count++] = add_result;
