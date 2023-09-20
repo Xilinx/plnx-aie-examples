@@ -16,6 +16,7 @@
 #endif
 
 #include "xgemm.h"
+#include <assert.h>
 #ifdef PERF_PROF
 #include <chrono>
 #endif
