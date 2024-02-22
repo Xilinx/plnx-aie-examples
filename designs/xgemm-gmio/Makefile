@@ -36,7 +36,7 @@ xclbin:
 	$(MAKE) xclbin -C ps/$(OS)
 
 cross-compile:
-	$(MAKE) cross-compile -C ps/$(OS) AIEARCH=$(AIEARCH)
+	$(MAKE) cross-compile -C ps/$(OS) __AIE_ARCH__=$(AIEARCH)
 
 copy-app-bins:
 	$(MAKE) copy-exe -C ps/$(OS)
