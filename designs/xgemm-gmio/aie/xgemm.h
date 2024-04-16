@@ -56,12 +56,12 @@ class XGeMM : public adf::graph {
 					connect<window<WIN_SIZE_BYTES>>(async(krnl[r][NUM_HW_COLS - 1].out[0]), result[r].in[0]);
 				} else {
 					krnl[r][NUM_HW_COLS - 1] = kernel::create(OneInput);
-					source(krnl[r][NUM_HW_COLS - 1]) = "kernels/one_input.cc";
+					source(krnl[r][NUM_HW_COLS - 1]) = "kernels/one_input_aie.cc";
 					runtime<ratio>(krnl[r][NUM_HW_COLS - 1]) = 0.8;
 					location<kernel>(krnl[r][NUM_HW_COLS - 1]) = tile(NUM_HW_COLS - 1, r);
 
 					krnl[r][0] = kernel::create(OneOutput);
-					source(krnl[r][0]) = "kernels/one_output.cc";
+					source(krnl[r][0]) = "kernels/one_output_aie.cc";
 					runtime<ratio>(krnl[r][0]) = 0.8;
 					location<kernel>(krnl[r][0]) = tile(0, r);
 
