@@ -10,7 +10,7 @@ if [[ -z "$XILINX_VITIS" ]]; then
 	return
 fi
 
-if [[ -z "$PETALINUX" ]]; then
+if [[ -n "$PTLNX_BSP" &&  -z "$PETALINUX" ]]; then
 	echo "[ERROR]: Versal ACAP PetaLinux needs to be setup"
 	return
 fi
