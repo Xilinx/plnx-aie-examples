@@ -1,3 +1,6 @@
+# Copyright (C) 2024, Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 #!/bin/bash
 
 #Fix build fail cause by HOME or tmp disk not enough issue
