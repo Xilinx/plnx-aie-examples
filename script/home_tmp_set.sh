@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2024, Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 directory="/scratch/staff/$USER"
 if [ ! -d "$directory" ]; then
     # Directory does not exist, create it
@@ -14,7 +17,7 @@ fi
 check_directory() {
     if [ -d "$1" ]; then
         echo "$1 exist"
-				directory=$1	
+				directory=$1
     else
         echo "Directory $1 not exist"
         read -p "Please input another big space directory for HOME&TMP:" new_directory

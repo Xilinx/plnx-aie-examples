@@ -1,3 +1,11 @@
+###############################################################################
+# Copyright (C) 2019 - 2022 Xilinx, Inc.  All rights reserved.
+# SPDX-License-Identifier: MIT
+###############################################################################
+# Copyright (C) 2024, Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: Apache-2.0
+###############################################################################
+
 # AI Engine: GMIO Matrix Multiplication Example
 
 The AI Engine matrix multiplication example demonstrates how to use AI Engine for scalar computation and use GMIO attributes for data movement. This example implements the standard matrix multiplication algorithm to multiply two matrices on the AIE cores. The user can change the matrix size and the number of cores utilized at compile-time. The default size is 1200x1200 (int32). The matrix could be further scaled to utilize the entire AIE's local data memory.

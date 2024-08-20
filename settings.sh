@@ -4,6 +4,9 @@
 # Copyright (C) 2019 - 2022 Xilinx, Inc.  All rights reserved.
 # SPDX-License-Identifier: MIT
 ###############################################################################
+# Copyright (C) 2024, Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: Apache-2.0
+###############################################################################
 
 if [[ -z "$XILINX_VITIS" ]]; then
 	echo "[ERROR]: Vitis needs to be setup"
