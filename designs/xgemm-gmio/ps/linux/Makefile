@@ -44,7 +44,7 @@ copy-xclbin:
 	@cp -fv $(APP).xclbin $(OOB_DIR)
 
 $(APP).xclbin: $(AIE_DIR)/libadf.a $(XRT_CFG)
-	$(VPP) -s -p -t $(TARGET) -f $(PFM_XPFM) $(PKG_OPTS) -o $@ $<
+	$(VPP) -s -p -t $(TARGET) -f $(EXP_DIR)/linux/hw.xsa $(PKG_OPTS) -o $@ $<
 
 cross-compile: $(APP)
 	@cp $< $(EXP_DIR)/linux
