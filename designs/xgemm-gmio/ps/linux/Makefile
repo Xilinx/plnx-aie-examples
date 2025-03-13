@@ -30,7 +30,7 @@ AIE_LINKER      := $(SYSROOT)/lib
 XRT_INC		:= $(SYSROOT)/usr/include/xrt
 INCS		:= -I$(XILINX_VITIS)/aietools/include/ -I$(XRT_INC) -I./ -I./kernels
 LD_DIRS		:= --sysroot=$(SYSROOT) -L$(XILINX_VITIS)/aietools/lib/aarch64.o -L$(AIE_LINKER)
-LD_LIBS		:= -ladf_api_xrt -lgcc -lc -lxilinxopencl -lxrt_coreutil -lpthread -lrt -ldl -lcrypt -lstdc++
+LD_LIBS		:= -lgcc -lc -lxrt_coreutil -lpthread -lrt -ldl -lcrypt -lstdc++
 LD_FLAGS	:= $(LD_DIRS) $(LD_LIBS)
 
 XRT_CFG		= xrt.ini
@@ -52,7 +52,7 @@ cross-compile: $(APP)
 copy-exe:
 	@cp -fv $(APP) $(OOB_DIR)
 
-$(APP): $(AIE_DIR)/xgemm.cpp $(AIE_DIR)/Work/ps/c_rts/aie_control_xrt.cpp
+$(APP): $(AIE_DIR)/host.cpp
 	$(CXX) $(CXX_FLAGS) $^ $(INCS) $(LD_FLAGS) -o $@
 
 export:
