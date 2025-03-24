@@ -56,7 +56,7 @@ int main(int argc, char ** argv)
 	std::cout<<"[INFO] Allocated BOs successfully"<<std::endl;
 	for(int i = 0; i < NUM_HW_ROWS; i ++) {
 		for (int j = 0; j < NUM_ELMNTS / NUM_HW_ROWS; j++) {
-			input_a_mapped_BOs[i][j] = (i * NUM_COLS + j) % 10;;
+			input_a_mapped_BOs[i][j] = i + 1;
 			result_aie_mapped_BOs[i][j] = 0;
 		}
 	}
@@ -136,7 +136,7 @@ int main(int argc, char ** argv)
 			int index_result_aie = local_i * NUM_COLS + j;
 
 			// Compare CPU result with AIE result
-			if (result_apu[j][i] != result_aie_mapped[index_result_aie]) {
+			if (result_apu[i][j] != result_aie_mapped[index_result_aie]) {
 				printf("[MISMATCH] At (%d, %d): CPU = %d, AIE = %d\n",
 					i, j, result_apu[i][j], result_aie_mapped[index_result_aie]);
 				pass = -1;

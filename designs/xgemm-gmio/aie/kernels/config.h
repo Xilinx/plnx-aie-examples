@@ -8,12 +8,19 @@
 
 #define AIE			10
 #define AIEML			20
+#define s200                   200
+#define vck190                 190
 
-#if (__AIE_ARCH__ == AIE)
-#define NUM_HW_COLS		50
-#define NUM_HW_ROWS		8
-#define MAT_SIZE		1200
-#define WIN_SIZE		600
+#if ((__AIE_ARCH__ == AIE) && (__BOARD__ == s200))
+#define NUM_HW_COLS             59
+#define NUM_HW_ROWS             8
+#define MAT_SIZE                944
+#define WIN_SIZE                944
+#elif ((__AIE_ARCH__ == AIE) && (__BOARD__ == vck190))
+#define NUM_HW_COLS             50
+#define NUM_HW_ROWS             8
+#define MAT_SIZE                1200
+#define WIN_SIZE                600
 #else
 #define NUM_HW_COLS		38
 #define NUM_HW_ROWS		8
