@@ -8,6 +8,7 @@ APP		:= aie-matrix-multiplication
 AIEARCH		?= aie
 TARGET		?= hw
 OS		?= linux
+BOARD           ?= vck190
 
 ifeq ($(OS), baremetal)
 all: platform compile hw sw cross-compile package print
@@ -23,7 +24,7 @@ platform:
 	$(MAKE) all -C $(PFMS_DIR)
 
 compile:
-	$(MAKE) all -C aie
+	$(MAKE) all -C aie __BOARD__=$(BOARD)
 
 hw:
 	mkdir -p export/$(OS)
@@ -36,7 +37,7 @@ xclbin:
 	$(MAKE) xclbin -C ps/$(OS)
 
 cross-compile:
-	$(MAKE) cross-compile -C ps/$(OS) __AIE_ARCH__=$(AIEARCH)
+	$(MAKE) cross-compile -C ps/$(OS) __AIE_ARCH__=$(AIEARCH) __BOARD__=$(BOARD)
 
 copy-app-bins:
 	$(MAKE) copy-exe -C ps/$(OS)

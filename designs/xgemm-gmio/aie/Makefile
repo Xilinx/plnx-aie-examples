@@ -12,7 +12,7 @@ PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xp
 all: libadf.a
 
 libadf.a: kernels/*
-	v++ -c --mode aie --platform=$(PFM_XPFM) --aie.workdir=Work xgemm.cpp
+	v++ -c --mode aie --platform=$(PFM_XPFM) --aie.Xpreproc="-D__BOARD__=$(__BOARD__)" --aie.workdir=Work xgemm.cpp
 
 .PHONY: clean
 clean:
