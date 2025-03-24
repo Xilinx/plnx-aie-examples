@@ -8,7 +8,7 @@
 #include "config.h"
 
 void OneOutput(input_window<int32>* __restrict aIn, input_window<int32>* __restrict bypassResult,
-	       input_stream_acc48 *bIn, output_window<int32>* __restrict result)
+	       input_cascade<acc48> *bIn, output_window<int32>* __restrict result)
 {
 	static int32 a[NUM_A_ELMNTS_PER_TILE];
 	static int32 b[NUM_COLS];

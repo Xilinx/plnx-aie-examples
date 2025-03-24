@@ -8,7 +8,7 @@
 #include "config.h"
 
 void OneInput(input_window<int32>* __restrict dataIn, output_window<int32>* __restrict aOut,
-	      output_window<int32>* __restrict result, output_stream_acc48 *bOut)
+	      output_window<int32>* __restrict result, output_cascade<acc48> *bOut)
 {
 	static int32 a[NUM_A_ELMNTS_PER_TILE];
 	static int32 b[NUM_COLS];
@@ -61,7 +61,7 @@ void OneInput(input_window<int32>* __restrict dataIn, output_window<int32>* __re
 				aie::vector<int32,VECTOR_LENGTH> temp = window_readincr_v<VECTOR_LENGTH>(dataIn);
 				aie::accum<acc48,VECTOR_LENGTH> bAcc;
 				bAcc.from_vector(temp, 0);
-				writeincr_v8(bOut, bAcc);
+				writeincr(bOut, bAcc);
 				aie::store_unaligned_v(b + (w * WIN_SIZE) + (x * VECTOR_LENGTH), temp);
 			}
 			window_release(dataIn);
