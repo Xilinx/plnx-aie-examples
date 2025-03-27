@@ -17,7 +17,7 @@ endif
 
 VPP		= v++
 CXX		:= aarch64-linux-gnu-g++
-CXX_FLAGS	+= -D__PS_ENABLE_AIE__ -D__AIE_ARCH__=$(AIEGEN) -D__BOARD__=$(BOARD) -Wall
+CXX_FLAGS	+= -D__PS_ENABLE_AIE__ -D__AIE_ARCH__=$(AIEGEN) -D__BOARD__=$(__BOARD__) -Wall
 
 AIE_DIR		:= ../../aie
 SW_DIR		:= ../../sw

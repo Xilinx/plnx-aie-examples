@@ -46,6 +46,8 @@ export PTLNX_BSP="<PetaLinux_BSP_path>"
 - By default, make compiles the application for Linux plaform and AIE architecture generation.
 - To compile the application for Baremetal platform, pass `OS=baremetal` to make.
 - To compile the application for AIE ML architecture generation, pass `AIEARCH=aie-ml` to make.
+- To compile the application for S200 hardware, we need to pass BOARD=200 with make command. By default
+  it'll assign AIE(vck190).
  
 ## Directory Structure
 
