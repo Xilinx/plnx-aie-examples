@@ -11,8 +11,12 @@ TARGET		?= hw
 
 ifeq ($(AIEARCH), aie)
 AIEGEN		= 10
-else
+else ifeq ($(AIEARCH), aieml)
 AIEGEN		= 20
+else ifeq ($(AIEARCH), aie2ps)
+AIEGEN	        = 22
+else
+$(if $(AIEARCH),$(error AIEARCH has invalid value: $(AIEARCH). Valid options are: aie, aieml, aie2ps),$(error AIEARCH is not set. Valid options are: aie, aieml, aie2ps))
 endif
 
 VPP		= v++
@@ -48,6 +52,8 @@ $(APP).xclbin: $(AIE_DIR)/libadf.a $(XRT_CFG)
 
 cross-compile: $(APP)
 	@cp $< $(EXP_DIR)/linux
+	@cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed_pld.pdi
+	@cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed.pdi
 
 copy-exe:
 	@cp -fv $(APP) $(OOB_DIR)
@@ -61,6 +67,8 @@ export:
 	@cp -fv $(PTLNX_DIR)/images/linux/Image $(EXP_DIR)/linux
 	@cp -fv $(PTLNX_DIR)/images/linux/rootfs.cpio.gz.u-boot $(EXP_DIR)/linux
 	@cp -fv $(PTLNX_DIR)/images/linux/*.dtb $(EXP_DIR)/linux
+	@cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed_pld.pdi
+	@cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed.pdi
 
 $(SW_DIR)/linux/images/linux/rootfs.cpio.gz.u-boot: $(APP) $(APP).xclbin
 	$(MAKE) build -C $(SW_DIR)
