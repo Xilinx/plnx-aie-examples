@@ -52,8 +52,10 @@ $(APP).xclbin: $(AIE_DIR)/libadf.a $(XRT_CFG)
 
 cross-compile: $(APP)
 	@cp $< $(EXP_DIR)/linux
-	@cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed_pld.pdi
-	@cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed.pdi
+ifeq ($(AIEARCH), aie2ps)
+	@-cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed_pld.pdi
+	@-cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed.pdi
+endif
 
 copy-exe:
 	@cp -fv $(APP) $(OOB_DIR)
