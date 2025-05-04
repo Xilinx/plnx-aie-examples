@@ -1,9 +1,11 @@
 #!/bin/bash
 
 XSA="$1"
-SDT_OUT="SDT_OUTPUT"
+SDT_OUT="sdt_output"
 BOARD_DTS="$2"
 SDTGEN_TCL="sdtgen.tcl"
+PROCESSOR="$3"
+LOP_DTS="$4"
 
 touch ${SDTGEN_TCL}
 cat > ${SDTGEN_TCL} << EOL
@@ -37,10 +39,12 @@ EOL
 sdtgen ${SDTGEN_TCL} -xsa_path ${XSA} -sdt_path ${SDT_OUT} -board_dts ${BOARD_DTS}
 
 #create the system.dts
-#lopper  -i lop-a72-imux.dts ${SDT_OUT}/system-top.dts system.dts linux_system.dts -- gen_domain_dts cortexa78_0 linux_dt
+lopper -O output/ -f --enhance ./${SDT_OUT}/system-top.dts system.dts – xlnx_overlay_pl_dt ${PROCESSOR} full ./${SDT_OUT}/pl.dtsi
+lopper -O ./output/ -f --enhanced -i ${LOP_DTS} ./output/system.dts linux_system.dts – gen_domain_dts ${PROCESSOR} linux_dt
 
 #create pl.dtsi
-lopper -f --enhanced  ${SDT_OUT}/system-top.dts  -- xlnx_overlay_dt cortexa78_0 full
-
+export LOPPER_DTC_FLAGS="-b 0 -@"
+lopper -O ./output/ -f --enhanced ./${SDT_OUT}/system-top.dts linux_system.dts -- xlnx_overlay_pl_dt ${PROCESSOR} full ./${SDT_OUT}/pl.dtsi
 #convert dtsi to dtb
+cp ./output/pl.dtsi .
 dtc -O dtb -o pl.dtbo -b 0 -@ pl.dtsi
