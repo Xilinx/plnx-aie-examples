@@ -39,12 +39,9 @@ EOL
 sdtgen ${SDTGEN_TCL} -xsa_path ${XSA} -sdt_path ${SDT_OUT} -board_dts ${BOARD_DTS}
 
 #create the system.dts
-lopper -O output/ -f --enhance ./${SDT_OUT}/system-top.dts system.dts – xlnx_overlay_pl_dt ${PROCESSOR} full ./${SDT_OUT}/pl.dtsi
-lopper -O ./output/ -f --enhanced -i ${LOP_DTS} ./output/system.dts linux_system.dts – gen_domain_dts ${PROCESSOR} linux_dt
-
-#create pl.dtsi
 export LOPPER_DTC_FLAGS="-b 0 -@"
-lopper -O ./output/ -f --enhanced ./${SDT_OUT}/system-top.dts linux_system.dts -- xlnx_overlay_pl_dt ${PROCESSOR} full ./${SDT_OUT}/pl.dtsi
+lopper -O output/ -f --enhance ./${SDT_OUT}/system-top.dts system.dts -- xlnx_overlay_pl_dt ${PROCESSOR} full ./${SDT_OUT}/pl.dtsi
+
 #convert dtsi to dtb
 cp ./output/pl.dtsi .
 dtc -O dtb -o pl.dtbo -b 0 -@ pl.dtsi

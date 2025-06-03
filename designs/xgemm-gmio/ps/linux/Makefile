@@ -37,8 +37,8 @@ LD_DIRS		:= --sysroot=$(SYSROOT) -L$(XILINX_VITIS)/aietools/lib/aarch64.o -L$(AI
 LD_LIBS		:= -lgcc -lc -lxrt_coreutil -lpthread -lrt -ldl -lcrypt -lstdc++
 LD_FLAGS	:= $(LD_DIRS) $(LD_LIBS)
 
-XRT_CFG		= xrt.ini
-PKG_OPTS	= --package.out_dir ./ --package.defer_aie_run --config $(XRT_CFG)
+PKG_CFG		= package_link.ini
+PKG_OPTS	= --package.out_dir ./ --package.defer_aie_run --config $(PKG_CFG)
 PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xpfm)
 
 xclbin: $(APP).xclbin
@@ -51,7 +51,7 @@ endif
 copy-xclbin:
 	@cp -fv $(APP).xclbin $(OOB_DIR)
 
-$(APP).xclbin: $(AIE_DIR)/libadf.a $(XRT_CFG)
+$(APP).xclbin: $(AIE_DIR)/libadf.a $(PKG_CFG)
 	$(VPP) -s -p -t $(TARGET) -f $(EXP_DIR)/linux/hw.xsa $(PKG_OPTS) -o $@ $<
 
 cross-compile: $(APP)
