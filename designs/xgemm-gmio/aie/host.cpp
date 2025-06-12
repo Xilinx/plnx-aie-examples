@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <fstream>
 #include <cstring>
-#include "kernels.h"
 #include "kernels/config.h"
 #include "xrt/xrt_aie.h"
 
