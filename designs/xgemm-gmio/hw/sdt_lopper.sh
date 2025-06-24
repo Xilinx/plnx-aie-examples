@@ -40,7 +40,7 @@ sdtgen ${SDTGEN_TCL} -xsa_path ${XSA} -sdt_path ${SDT_OUT} -board_dts ${BOARD_DT
 
 #create the system.dts
 export LOPPER_DTC_FLAGS="-b 0 -@"
-lopper -O output/ -f --enhance ./${SDT_OUT}/system-top.dts system.dts -- xlnx_overlay_pl_dt ${PROCESSOR} full ./${SDT_OUT}/pl.dtsi
+lopper -O output/ -f --enhanced ./${SDT_OUT}/system-top.dts system.dts -- xlnx_overlay_pl_dt ${PROCESSOR} full ./${SDT_OUT}/pl.dtsi
 
 #convert dtsi to dtb
 cp ./output/pl.dtsi .
