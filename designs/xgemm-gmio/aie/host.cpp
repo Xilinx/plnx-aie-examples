@@ -148,9 +148,11 @@ int main(int argc, char ** argv)
 
 	if(pass == -1) {
 		std::cout << "[ERROR] XGeMM Failed!" << std::endl;
+		std::cout << "FAILED" << std::endl;
 		ret = -1;
 	} else {
 		std::cout << "[INFO] XGeMM Success!" << std::endl;
+		std::cout << "TEST PASSED" << std::endl;
 	}
 
 #if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
