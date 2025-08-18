@@ -11,6 +11,7 @@
 #define AIE2PS			22
 #define s200                   200
 #define vck190                 190
+#define vrk160		       160
 
 #if ((__AIE_ARCH__ == AIE) && (__BOARD__ == s200))
 #pragma message ("Setting AIEARCH to AIE-s200")
@@ -24,6 +25,12 @@
 #define NUM_HW_ROWS             8
 #define MAT_SIZE                1200
 #define WIN_SIZE                600
+#elif ((__AIE_ARCH__ == AIE) && (__BOARD__ == vrk160))
+#pragma message ("Setting AIEARCH to AIE-vrk160")
+#define NUM_HW_COLS             42
+#define NUM_HW_ROWS             3
+#define MAT_SIZE                504
+#define WIN_SIZE                504
 #elif (__AIE_ARCH__ == AIEML)
 #pragma message ("Setting AIEARCH to AIEML")
 #define NUM_HW_COLS		38
