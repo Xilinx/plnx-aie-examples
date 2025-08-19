@@ -43,10 +43,8 @@ PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xp
 
 xclbin: $(APP).xclbin
 	@cp $< $(EXP_DIR)/linux
-ifeq ($(AIEARCH), aie2ps)
 	@-cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed_pld.pdi
 	@-cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed.pdi
-endif	
 
 copy-xclbin:
 	@cp -fv $(APP).xclbin $(OOB_DIR)

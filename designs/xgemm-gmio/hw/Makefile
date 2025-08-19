@@ -31,10 +31,25 @@ LOP_DTS		= lop-a72-imux.dts
 
 all: create sdt_lopper
 else
+ifeq ($(AIEARCH), aie)
+ifeq ($(__BOARD__), vrk160)
+BOARD_DTS      = versal-vrk160-reva
+PROCESSOR      = psv_cortexa72_0
+LOP_DTS                = lop-a72-imux.dts
+else
+ifeq ($(__BOARD__), vck190)
+BOARD_DTS      = versal-vck190-rev1.1-x-ebm-01-reva
+PROCESSOR      = psv_cortexa72_0
+LOP_DTS                = lop-a72-imux.dts
+endif
+endif
+all: create sdt_lopper
+else
 all: create
 endif
 endif
-	
+endif
+
 create: $(TARGET).xsa
 	@cp $< $(EXP_DIR)/$(OS)
 

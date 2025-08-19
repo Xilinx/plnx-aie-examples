@@ -28,7 +28,7 @@ compile:
 
 hw:
 	mkdir -p export/$(OS)
-	$(MAKE) all -C hw OS=$(OS) AIEARCH=$(AIEARCH)
+	$(MAKE) all -C hw OS=$(OS) AIEARCH=$(AIEARCH) __BOARD__=$(BOARD)
 
 sw:
 	$(MAKE) all -C sw OS=$(OS)
