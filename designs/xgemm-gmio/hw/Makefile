@@ -18,7 +18,7 @@ VPP_FLAGS 	:= -t $(TARGET) -f $(PFM_XPFM) --save-temps -g
 
 .PHONY: all
 ifeq ($(AIEARCH), aie2ps)
-BOARD_DTS	= versal2-vek385-revA
+BOARD_DTS	= versal2-vek385-reva
 PROCESSOR	= cortexa78_0
 LOP_DTS		= lop-a78-imux.dts
 
