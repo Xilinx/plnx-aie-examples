@@ -29,7 +29,7 @@ EXP_DIR		:= ../../export
 PTLNX_DIR	:= $(SW_DIR)/linux
 OOB_DIR		:= $(PTLNX_DIR)/project-spec/meta-user/recipes-apps/aie-oob/files
 
-SYSROOT		?= $(PTLNX_DIR)/images/linux/sdk/sysroots/cortexa72-cortexa53-xilinx-linux/
+SYSROOT		?= $(PTLNX_DIR)/images/linux/sdk/sysroots/cortexa72-cortexa53-amd-linux/
 AIE_LINKER      := $(SYSROOT)/lib
 XRT_INC		:= $(SYSROOT)/usr/include/xrt
 INCS		:= -I$(XILINX_VITIS)/aietools/include/ -I$(XRT_INC) -I./ -I./kernels

@@ -25,10 +25,11 @@ int main(int argc, char ** argv)
 	auto dhdl = xrt::aie::device{"0"};
 	std::cout<<"Open device successfully"<<std::endl;
 	auto xclbin_1 = xrt::xclbin(xclbinFilename);
-	auto uuid = dhdl.load_xclbin(xclbin_1);
+	auto uuid = dhdl.register_xclbin(xclbin_1);
 	std::cout<<"Load XCLBIN successfully"<<std::endl;
+	xrt::hw_context hwctx{dhdl, uuid};
 
-	auto ghdl = xrt::graph(dhdl, uuid, "my_graph");
+	auto ghdl = xrt::graph(hwctx, "my_graph");
 
 	int ret = 0, pass = 0;
 	int len = NUM_ELMNTS * sizeof(int) + NUM_ROWS * sizeof(int *);
@@ -36,19 +37,22 @@ int main(int argc, char ** argv)
 	std::vector<xrt::aie::bo> input_a_BOs;
 	std::vector<int*> input_a_mapped_BOs;
 	for (int i = 0; i < NUM_HW_ROWS ; i++) {
-		auto input_a = xrt::aie::bo(dhdl, MAT_A_CHUNK_SIZE, 0, 0);
+		auto input_a = xrt::aie::bo(hwctx, static_cast<size_t>(MAT_A_CHUNK_SIZE),
+					    static_cast<xrt::bo::flags>(0), uint32_t(0));
 		auto input_a_mapped = input_a.map<int*>();
 		input_a_BOs.push_back(input_a);
 		input_a_mapped_BOs.push_back(input_a_mapped);
 	}
 
-	auto input_b_0 = xrt::aie::bo(dhdl, len, 0, 0);
-	auto input_b_mapped_0  =  input_b_0.map<int*>();
+	auto input_b_0 = xrt::aie::bo(hwctx, static_cast<size_t>(len),
+				      static_cast<xrt::bo::flags>(0), uint32_t(0));
+	auto input_b_mapped_0 = input_b_0.map<int*>();
 
 	std::vector<xrt::aie::bo> result_aie_BOs;
         std::vector<int*> result_aie_mapped_BOs;
         for (int i = 0; i < NUM_HW_ROWS ; i++) {
-                auto result_aie = xrt::aie::bo(dhdl, MAT_A_CHUNK_SIZE, 0, 0);
+		auto result_aie = xrt::aie::bo(hwctx, static_cast<size_t>(MAT_A_CHUNK_SIZE),
+					       static_cast<xrt::bo::flags>(0), uint32_t(0));
                 auto result_aie_mapped = result_aie.map<int*>();
                 result_aie_BOs.push_back(result_aie);
                 result_aie_mapped_BOs.push_back(result_aie_mapped);
@@ -156,8 +160,5 @@ int main(int argc, char ** argv)
 		std::cout << "TEST PASSED" << std::endl;
 	}
 
-#if !defined(__AIESIM__) && !defined(__ADF_FRONTEND__) && !defined(__AIEBAREMETAL__)
-	dhdl.reset_array();
-#endif
 	return ret;
 }
