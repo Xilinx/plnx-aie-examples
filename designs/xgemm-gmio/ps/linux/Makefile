@@ -37,7 +37,13 @@ LD_DIRS		:= --sysroot=$(SYSROOT) -L$(XILINX_VITIS)/aietools/lib/aarch64.o -L$(AI
 LD_LIBS		:= -lgcc -lc -lxrt_coreutil -lpthread -lrt -ldl -lcrypt -lstdc++
 LD_FLAGS	:= $(LD_DIRS) $(LD_LIBS)
 
-PKG_CFG		= package_link.ini
+SEGMENTED_CFG := $(shell unzip -p "$(BASE_XSA)" xsa.json 2>/dev/null | sed -n 's/.*"segmentedConfiguration"[[:space:]]*:[[:space:]]*"\(true\|false\)".*/\1/p' | head -n1)
+
+ifeq ($(SEGMENTED_CFG),true)
+PKG_CFG 	:= package_link_seg.ini
+else
+PKG_CFG		:= package_link.ini
+endif
 PKG_OPTS	= --package.out_dir ./ --package.defer_aie_run --config $(PKG_CFG)
 PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xpfm)
 
