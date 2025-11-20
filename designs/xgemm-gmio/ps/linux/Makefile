@@ -49,8 +49,8 @@ PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xp
 
 xclbin: $(APP).xclbin
 	@cp $< $(EXP_DIR)/linux
-	@-cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed_pld.pdi
-	@-cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed.pdi
+	@-cp -fv $(APP).pdi $(EXP_DIR)/linux/$(APP).pdi
+	@-cp -fv $(APP).dtbo $(EXP_DIR)/linux/$(APP).dtbo
 
 copy-xclbin:
 	@cp -fv $(APP).xclbin $(OOB_DIR)
@@ -73,8 +73,8 @@ export:
 	@cp -fv $(PTLNX_DIR)/images/linux/Image $(EXP_DIR)/linux
 	@cp -fv $(PTLNX_DIR)/images/linux/rootfs.cpio.gz.u-boot $(EXP_DIR)/linux
 	@cp -fv $(PTLNX_DIR)/images/linux/*.dtb $(EXP_DIR)/linux
-	@cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed_pld.pdi
-	@cp -fv $(APP).pdi $(EXP_DIR)/linux/vpl_gen_fixed.pdi
+	@cp -fv $(APP).pdi $(EXP_DIR)/linux/$(APP).pdi
+	@cp -fv $(APP).dtbo $(EXP_DIR)/linux/$(APP).dtbo
 
 $(SW_DIR)/linux/images/linux/rootfs.cpio.gz.u-boot: $(APP) $(APP).xclbin
 	$(MAKE) build -C $(SW_DIR)
