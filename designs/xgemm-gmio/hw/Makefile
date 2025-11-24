@@ -25,7 +25,8 @@ create: $(TARGET).xsa
 $(TARGET).xsa: $(LIBADF) $(CONN_SPEC)
 	$(VPP) -l $(VPP_FLAGS) $(LIBADF) --config $(CONN_SPEC) -o $@
 
-clean:	rm -rf _x
+clean:
+	rm -rf _x
 	rm -rf .Xil
 	rm -rf .ipcache
 	rm -rf *.pdi
