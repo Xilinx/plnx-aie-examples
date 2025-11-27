@@ -50,7 +50,11 @@ PFM_XPFM	:= $(shell test -d $(BASE_PLATFORM) && find $(BASE_PLATFORM) -name *.xp
 xclbin: $(APP).xclbin
 	@cp $< $(EXP_DIR)/linux
 	@-cp -fv $(APP).pdi $(EXP_DIR)/linux/$(APP).pdi
-	@-cp -fv $(APP).dtbo $(EXP_DIR)/linux/$(APP).dtbo
+	@if [ "$(SEGMENTED_CFG)" = "true" ]; then \
+	cp -fv "$(APP).dtbo" "$(EXP_DIR)/linux/$(APP).dtbo"; \
+	else \
+	echo "Skipping dtbo copy (SEGMENTED_CFG=is false)"; \
+	fi
 
 copy-xclbin:
 	@cp -fv $(APP).xclbin $(OOB_DIR)
