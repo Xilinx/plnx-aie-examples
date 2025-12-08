@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 ###############################################################################
 
-APP		:= aie-matrix-multiplication
+APP		?= aie-matrix-multiplication
 
 AIEARCH		?= aie
 TARGET		?= hw
