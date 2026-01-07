@@ -12,6 +12,7 @@
 #define s200                   200
 #define vck190                 190
 #define vrk160		       160
+#define pa1225		       310
 
 #if ((__AIE_ARCH__ == AIE) && (__BOARD__ == s200))
 #pragma message ("Setting AIEARCH to AIE-s200")
@@ -37,12 +38,18 @@
 #define NUM_HW_ROWS		8
 #define MAT_SIZE		608
 #define WIN_SIZE		608
-#elif (__AIE_ARCH__ == AIE2PS)
-#pragma message ("Setting AIEARCH to AIE2PS")
+#elif ((__AIE_ARCH__ == AIE2PS) && (__BOARD__ == vek385))
+#pragma message ("Setting AIEARCH to AIE2PS-vek385")
 #define NUM_HW_COLS		36
 #define NUM_HW_ROWS		 4
 #define MAT_SIZE		288
 #define WIN_SIZE		288
+#elif ((__AIE_ARCH__ == AIE2PS) && (__BOARD__ == pa1225))
+#pragma message ("Setting AIEARCH to AIE2PS-pa1225")
+#define NUM_HW_COLS		 8
+#define NUM_HW_ROWS		 2
+#define MAT_SIZE		32
+#define WIN_SIZE		32
 #else
 #error "AIEARCH has an invalid value. Valid options are: aie, aieml, aie2ps"
 #endif
